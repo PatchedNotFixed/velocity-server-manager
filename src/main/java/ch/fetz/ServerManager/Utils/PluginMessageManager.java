@@ -32,12 +32,12 @@ public class PluginMessageManager implements Listener {
             out.writeUTF(message);
         }catch(Exception ex){
         }
-        server.sendData("bungeeservermanager", stream.toByteArray());
+        server.sendData("bsm:cmd", stream.toByteArray());
     }
 
     @EventHandler
     public void onReceiveMessage(PluginMessageEvent e){
-        if(!e.getTag().equals("bungeeservermanager")){
+        if(!e.getTag().equals("bsm:cmd")){
             return;
         }
         if(!(e.getSender() instanceof Server)){

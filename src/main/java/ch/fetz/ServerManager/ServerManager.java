@@ -70,7 +70,7 @@ public class ServerManager extends Plugin {
         serverPinger = new ServerPinger(this);
         pluginMessageManager = new PluginMessageManager(this);
 
-        getProxy().registerChannel("bungeeservermanager");
+        getProxy().registerChannel("bsm:cmd");
 
         createConfig();
         registerCommands();

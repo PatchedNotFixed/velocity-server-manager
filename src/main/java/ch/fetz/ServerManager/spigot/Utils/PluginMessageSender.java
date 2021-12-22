@@ -28,12 +28,12 @@ public class PluginMessageSender implements PluginMessageListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        p.sendPluginMessage(plugin, "bungeeservermanager", stream.toByteArray());
+        p.sendPluginMessage(plugin, "bsm:cmd", stream.toByteArray());
     }
 
     @Override
     public void onPluginMessageReceived(String channel, Player p, byte[] bytes) {
-        if(!channel.equalsIgnoreCase("bungeeservermanager")){
+        if(!channel.equalsIgnoreCase("bsm:cmd")){
             return;
         }
         ByteArrayInputStream stream = new ByteArrayInputStream(bytes);

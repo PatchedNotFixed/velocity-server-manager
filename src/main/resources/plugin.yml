@@ -1,7 +1,7 @@
 name: SpigotServerManager
 main: ch.fetz.ServerManager.spigot.SpigotServerManager
 author: Noah Fetz
-version: 1.4.7
+version: 1.4.8
 commands:
   servermanagerclient:
     usage: /servermanagerclient

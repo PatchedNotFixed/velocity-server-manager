@@ -39,8 +39,8 @@ public class SpigotServerManager extends JavaPlugin{
 
         this.spigotMetrics = new SpigotMetrics(this);
 
-        Bukkit.getMessenger().registerIncomingPluginChannel(this, "bungeeservermanager", pluginMessageSender);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "bungeeservermanager");
+        Bukkit.getMessenger().registerIncomingPluginChannel(this, "bsm:cmd", pluginMessageSender);
+        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "bsm:cmd");
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         registerCommands();
