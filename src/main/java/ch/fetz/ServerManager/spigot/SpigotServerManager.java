@@ -6,8 +6,6 @@ import ch.fetz.ServerManager.spigot.Utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.Connection;
-
 /**
  * Created by Noah Fetz on 04.12.2016.
  */
@@ -15,7 +13,6 @@ public class SpigotServerManager extends JavaPlugin{
 
     public String prefix = "§f[§4SpigotServerManager§f] ";
     private MySQL mySQL;
-    private Connection con;
     public String mysqlHost;
     public Integer mysqlPort;
     public String mysqlUser;
@@ -28,11 +25,9 @@ public class SpigotServerManager extends JavaPlugin{
 
     @Override
     public void onEnable(){
-
         createConfig();
 
         this.mySQL = new MySQL(this);
-        this.mySQL.connect();
         this.spigotManager = new SpigotManager(this);
         this.menuManager = new MenuManager(this);
         this.pluginMessageSender = new PluginMessageSender(this);
@@ -55,7 +50,6 @@ public class SpigotServerManager extends JavaPlugin{
 
     @Override
     public void onDisable(){
-        this.mySQL.close();
     }
 
     private void createConfig(){
@@ -94,14 +88,6 @@ public class SpigotServerManager extends JavaPlugin{
 
     private void registerListener(){
         new InventoryClickEvent_Listener(this);
-    }
-
-    public Connection getCon(){
-        return this.con;
-    }
-
-    public void setCon(Connection con){
-        this.con = con;
     }
 
     public MySQL getMySQL(){

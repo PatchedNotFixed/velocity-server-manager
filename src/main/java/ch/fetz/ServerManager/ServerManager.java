@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +39,6 @@ public class ServerManager extends Plugin {
     public String mysqlUser;
     public String mysqlDatabase;
     public String mysqlPassword;
-    private Connection con;
     public boolean setHeader;
     public String headerText;
     public boolean setFooter;
@@ -63,6 +61,9 @@ public class ServerManager extends Plugin {
     @Override
     public void onEnable(){
         instance = this;
+
+        createConfig();
+
         manager = new Manager(this);
         mySQL = new MySQL(this);
         messages = new Messages(this);
@@ -72,7 +73,6 @@ public class ServerManager extends Plugin {
 
         getProxy().registerChannel("bsm:cmd");
 
-        createConfig();
         registerCommands();
         registerListener();
         messages.loadMessages();
@@ -83,8 +83,8 @@ public class ServerManager extends Plugin {
         }catch(Exception ex){
         }
 
-        mySQL.connect();
-        mySQL.createTable();
+        //mySQL.connect();
+        //mySQL.createTable();
 
         manager.addAllServers();
 
@@ -114,7 +114,6 @@ public class ServerManager extends Plugin {
             for(ServerInfo server : nonlobbies){
                 getManager().setIsOnline(server.getName() ,false);
             }
-            mySQL.close();
         }catch (Exception e){
         }
         ProxyServer.getInstance().getConsole().sendMessage("§8-----------===== " + prefix + "§8=====-----------");
@@ -206,14 +205,6 @@ public class ServerManager extends Plugin {
 
     public Manager getManager(){
         return this.manager;
-    }
-
-    public Connection getCon(){
-        return this.con;
-    }
-
-    public void setCon(Connection setcon){
-        this.con = setcon;
     }
 
     public MySQL getMySQL(){

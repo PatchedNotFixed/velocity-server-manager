@@ -4,7 +4,8 @@ public enum SQLStatementParameterType {
     STRING(0),
     INT(1),
     DOUBLE(2),
-    BOOL(3);
+    BOOL(3),
+    LONG(4);
 
     private final int identifier;
 

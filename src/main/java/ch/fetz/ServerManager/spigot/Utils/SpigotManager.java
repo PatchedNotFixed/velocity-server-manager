@@ -1,5 +1,7 @@
 package ch.fetz.ServerManager.spigot.Utils;
 
+import ch.fetz.ServerManager.Utils.SQLStatementParameter;
+import ch.fetz.ServerManager.Utils.SQLStatementParameterType;
 import ch.fetz.ServerManager.spigot.SpigotServerManager;
 
 import java.sql.ResultSet;
@@ -24,7 +26,7 @@ public class SpigotManager {
      */
     public ArrayList<String> getAllServers(){
         ArrayList<String> servers = new ArrayList<>();
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers", new ArrayList<>());
         try {
             while(rs.next()){
                 servers.add(rs.getString("systemname"));
@@ -42,7 +44,7 @@ public class SpigotManager {
      * @return
      */
     public String getIp(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getString("ip");
@@ -60,7 +62,7 @@ public class SpigotManager {
      * @return
      */
     public Integer getPort(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getInt("port");
@@ -78,7 +80,7 @@ public class SpigotManager {
      * @return
      */
     public String getDisplayName(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getString("displayname");
@@ -96,7 +98,7 @@ public class SpigotManager {
      * @return
      */
     public String getMOTD(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getString("motd");
@@ -114,7 +116,7 @@ public class SpigotManager {
      * @return
      */
     public Boolean isLobby(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getBoolean("islobby");
@@ -132,7 +134,7 @@ public class SpigotManager {
      * @return
      */
     public Boolean isActive(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getBoolean("isactive");
@@ -150,7 +152,7 @@ public class SpigotManager {
      * @return
      */
     public Boolean isRestricted(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getBoolean("isrestricted");
@@ -168,7 +170,7 @@ public class SpigotManager {
      * @return
      */
     public Boolean isOnline(String name){
-        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = '" + name + "'");
+        ResultSet rs = plugin.getMySQL().getResult("SELECT * FROM servermanager_servers WHERE systemname = ?", new ArrayList<SQLStatementParameter>() {{add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name));}});
         try {
             while(rs.next()){
                 return rs.getBoolean("isonline");

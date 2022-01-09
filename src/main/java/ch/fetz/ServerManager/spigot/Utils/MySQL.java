@@ -1,8 +1,15 @@
 package ch.fetz.ServerManager.spigot.Utils;
 
+import ch.fetz.ServerManager.Utils.SQLStatementParameter;
 import ch.fetz.ServerManager.spigot.SpigotServerManager;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  * Created by Noah Fetz on 04.12.2016.
@@ -10,68 +17,107 @@ import java.sql.*;
 public class MySQL {
     private final SpigotServerManager plugin;
 
+    private final HikariDataSource dataSource;
+
     public MySQL(SpigotServerManager spigotServerManager) {
         this.plugin = spigotServerManager;
-    }
 
-    public void connect(){
         try {
-            Connection con = DriverManager.getConnection("jdbc:mysql://" + plugin.mysqlHost + ":" + plugin.mysqlPort + "/" + plugin.mysqlDatabase + "?autoReconnect=true" , plugin.mysqlUser, plugin.mysqlPassword);
-            plugin.setCon(con);
-            plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§7MySQL §asuccessfully §7connected to the database");
-        } catch (Exception ex) {
-            plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§cCould not connect to MySQL! Plugin doesn't work! Please PM Noali2000 with the following StackTrace on the SpigotForums, if you belive this is a plugin error!");
-            plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§7================================§8[§4COPY STACK TRACE FROM HERE§8]§7================================");
-            ex.printStackTrace();
-            plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§7================================§8[§4COPY STACK TRACE UP TO HERE§8]§7================================");
+            Class.forName("org.mariadb.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-    }
 
-    public void close(){
-        try {
-            plugin.getCon().close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mariadb://" + plugin.mysqlHost + ":" + plugin.mysqlPort + "/" + plugin.mysqlDatabase);
+        config.setUsername(plugin.mysqlUser);
+        config.setPassword(plugin.mysqlPassword);
+        config.setPoolName("BSM-Pool");
 
-    public boolean isConnected(){
-        return plugin.getCon() != null;
+        this.dataSource = new HikariDataSource(config);
+
+        this.createTable();
     }
 
     public void createTable(){
         try {
-            plugin.getCon().createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS servermanager_servers(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, systemname TEXT, ip TEXT, port INT, displayname TEXT, motd TEXT, islobby BOOLEAN, isactive BOOLEAN, isrestricted BOOLEAN, isonline BOOLEAN)");
-            plugin.getCon().createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS servermanager_players(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, uuid TEXT, name TEXT, notify BOOLEAN)");
+            this.update("CREATE TABLE IF NOT EXISTS servermanager_servers(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, systemname TEXT, ip TEXT, port INT, displayname TEXT, motd TEXT, islobby BOOLEAN, isactive BOOLEAN, isrestricted BOOLEAN, isonline BOOLEAN)", new ArrayList<>());
+            this.update("CREATE TABLE IF NOT EXISTS servermanager_players(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, uuid TEXT, name TEXT, notify BOOLEAN)", new ArrayList<>());
         } catch (Exception ex) {
             plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§cCould not create the MySQL Table!");
         }
-        try {
-            plugin.getCon().createStatement().executeUpdate("ALTER TABLE servermanager_servers ADD isonline BOOLEAN");
-            plugin.getServer().getConsoleSender().sendMessage(plugin.prefix + "§aUpdated the MySQL Database to the newest plugin version");
-        }catch (Exception ex){
-        }
     }
 
-    public void update(String qry){
+    public void update(String qry, ArrayList<SQLStatementParameter> parameters){
         try {
-            PreparedStatement ps = plugin.getCon().prepareStatement(qry);
+            Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(qry);
+
+            for(SQLStatementParameter parameter : parameters) {
+                switch (parameter.type) {
+                    case STRING:
+                        ps.setString(parameter.index, (String)parameter.value);
+                        break;
+
+                    case INT:
+                        ps.setInt(parameter.index, (int)parameter.value);
+                        break;
+
+                    case DOUBLE:
+                        ps.setDouble(parameter.index, (double)parameter.value);
+                        break;
+
+                    case BOOL:
+                        ps.setBoolean(parameter.index, (boolean)parameter.value);
+                        break;
+
+                    case LONG:
+                        ps.setLong(parameter.index, (long)parameter.value);
+                }
+            }
+
             ps.executeUpdate();
+            connection.close();
         } catch (SQLException e) {
-            close();
-            connect();
-            update(qry);
+            e.printStackTrace();
         }
     }
 
-    public ResultSet getResult(String qry){
+    public ResultSet getResult(String qry, ArrayList<SQLStatementParameter> parameters){
         try {
-            PreparedStatement ps = plugin.getCon().prepareStatement(qry);
-            return ps.executeQuery();
+            Connection connection = this.dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(qry);
+
+            for(SQLStatementParameter parameter : parameters) {
+                switch (parameter.type) {
+                    case STRING:
+                        ps.setString(parameter.index, (String)parameter.value);
+                        break;
+
+                    case INT:
+                        ps.setInt(parameter.index, (int)parameter.value);
+                        break;
+
+                    case DOUBLE:
+                        ps.setDouble(parameter.index, (double)parameter.value);
+                        break;
+
+                    case BOOL:
+                        ps.setBoolean(parameter.index, (boolean)parameter.value);
+                        break;
+
+                    case LONG:
+                        ps.setLong(parameter.index, (long)parameter.value);
+                }
+            }
+
+            ResultSet rs = ps.executeQuery();
+            connection.close();
+            return rs;
         } catch (SQLException e) {
-            close();
-            connect();
-            return getResult(qry);
+            e.printStackTrace();
+
+            return null;
         }
     }
 }
