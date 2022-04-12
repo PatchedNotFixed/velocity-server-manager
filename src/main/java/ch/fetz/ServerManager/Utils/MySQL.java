@@ -32,6 +32,7 @@ public class MySQL {
         config.setJdbcUrl("jdbc:mariadb://" + plugin.mysqlHost + ":" + plugin.mysqlPort + "/" + plugin.mysqlDatabase);
         config.setUsername(plugin.mysqlUser);
         config.setPassword(plugin.mysqlPassword);
+        config.setAutoCommit(false);
         config.setPoolName("BSM-Pool");
 
         this.dataSource = new HikariDataSource(config);
@@ -49,36 +50,32 @@ public class MySQL {
     }
 
     public void update(String qry, ArrayList<SQLStatementParameter> parameters){
+        Connection connection = null;
+
         try {
-            Connection connection = this.dataSource.getConnection();
+            connection = this.dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(qry);
 
             for(SQLStatementParameter parameter : parameters) {
                 switch (parameter.type) {
-                    case STRING:
-                        ps.setString(parameter.index, (String)parameter.value);
-                        break;
-
-                    case INT:
-                        ps.setInt(parameter.index, (int)parameter.value);
-                        break;
-
-                    case DOUBLE:
-                        ps.setDouble(parameter.index, (double)parameter.value);
-                        break;
-
-                    case BOOL:
-                        ps.setBoolean(parameter.index, (boolean)parameter.value);
-                        break;
-
-                    case LONG:
-                        ps.setLong(parameter.index, (long)parameter.value);
+                    case STRING -> ps.setString(parameter.index, (String) parameter.value);
+                    case INT -> ps.setInt(parameter.index, (int) parameter.value);
+                    case DOUBLE -> ps.setDouble(parameter.index, (double) parameter.value);
+                    case BOOL -> ps.setBoolean(parameter.index, (boolean) parameter.value);
+                    case LONG -> ps.setLong(parameter.index, (long) parameter.value);
                 }
             }
 
             ps.executeUpdate();
+            connection.commit();
+            ps.close();
             connection.close();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             e.printStackTrace();
         }
     }
@@ -90,28 +87,16 @@ public class MySQL {
 
             for(SQLStatementParameter parameter : parameters) {
                 switch (parameter.type) {
-                    case STRING:
-                        ps.setString(parameter.index, (String)parameter.value);
-                        break;
-
-                    case INT:
-                        ps.setInt(parameter.index, (int)parameter.value);
-                        break;
-
-                    case DOUBLE:
-                        ps.setDouble(parameter.index, (double)parameter.value);
-                        break;
-
-                    case BOOL:
-                        ps.setBoolean(parameter.index, (boolean)parameter.value);
-                        break;
-
-                    case LONG:
-                        ps.setLong(parameter.index, (long)parameter.value);
+                    case STRING -> ps.setString(parameter.index, (String) parameter.value);
+                    case INT -> ps.setInt(parameter.index, (int) parameter.value);
+                    case DOUBLE -> ps.setDouble(parameter.index, (double) parameter.value);
+                    case BOOL -> ps.setBoolean(parameter.index, (boolean) parameter.value);
+                    case LONG -> ps.setLong(parameter.index, (long) parameter.value);
                 }
             }
 
             ResultSet rs = ps.executeQuery();
+            rs.close();
             connection.close();
             return rs;
         } catch (SQLException e) {
