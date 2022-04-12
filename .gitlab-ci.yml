@@ -1,9 +1,6 @@
 image: docker:latest
-services:
-  - docker:dind
 
 variables:
-  DOCKER_DRIVER: overlay
   SPRING_PROFILES_ACTIVE: gitlab-ci
 
 stages:
@@ -18,3 +15,4 @@ maven-build:
   artifacts:
     paths:
       - target/*.jar
+    expire_in: 1 week
