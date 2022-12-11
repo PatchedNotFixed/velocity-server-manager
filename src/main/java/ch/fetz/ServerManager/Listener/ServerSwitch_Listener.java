@@ -21,17 +21,19 @@ public class ServerSwitch_Listener implements Listener {
     @EventHandler
     public void onSwitch(ServerSwitchEvent e){
         try{
-            String header = plugin.headerText.replace("%player%", e.getPlayer().getName()).replace("%server%", plugin.getManager().getDisplayName(e.getPlayer().getServer().getInfo().getName()));
-            String footer = plugin.footerText.replace("%player%", e.getPlayer().getName()).replace("%server%", plugin.getManager().getDisplayName(e.getPlayer().getServer().getInfo().getName()));
-            header = ChatColor.translateAlternateColorCodes('&', header);
-            footer = ChatColor.translateAlternateColorCodes('&', footer);
-            if(!plugin.setHeader){
-                header = " ";
+            if(plugin.setHeader || plugin.setFooter) {
+                String header = plugin.headerText.replace("%player%", e.getPlayer().getName()).replace("%server%", plugin.getManager().getDisplayName(e.getPlayer().getServer().getInfo().getName()));
+                String footer = plugin.footerText.replace("%player%", e.getPlayer().getName()).replace("%server%", plugin.getManager().getDisplayName(e.getPlayer().getServer().getInfo().getName()));
+                header = ChatColor.translateAlternateColorCodes('&', header);
+                footer = ChatColor.translateAlternateColorCodes('&', footer);
+                if (!plugin.setHeader) {
+                    header = " ";
+                }
+                if (!plugin.setFooter) {
+                    footer = " ";
+                }
+                e.getPlayer().setTabHeader(new TextComponent(header), new TextComponent(footer));
             }
-            if(!plugin.setFooter){
-                header = " ";
-            }
-            e.getPlayer().setTabHeader(new TextComponent(header), new TextComponent(footer));
         }catch (Exception ex){
         }
     }
