@@ -6,3 +6,7 @@
 /out
 /build
 /dist
+
+# Gradle
+/.gradle
+/gradle
