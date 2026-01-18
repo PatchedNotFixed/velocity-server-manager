@@ -20,13 +20,13 @@ repositories {
 dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.4.0-SNAPSHOT")
-//    implementation 'org.yaml:snakeyaml:2.2' (Might not need)
+    implementation 'org.yaml:snakeyaml:2.2'
     implementation 'com.zaxxer:HikariCP:5.1.0'
     implementation 'com.mysql:mysql-connector-j:8.2.0'
 }
 
 shadowJar {
-//    relocate 'org.yaml.snakeyaml', 'de.gunnablescum.velocityservermanager.libs.snakeyaml' (Might not need)
+    relocate 'org.yaml.snakeyaml', 'de.gunnablescum.velocityservermanager.libs.snakeyaml'
     relocate 'com.zaxxer.hikari', 'de.gunnablescum.velocityservermanager.libs.hikari'
 }
 
