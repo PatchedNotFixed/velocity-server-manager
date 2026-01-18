@@ -7,7 +7,7 @@ import com.velocitypowered.api.proxy.Player;
 import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.BackendServerManager;
 import de.gunnablescum.velocityservermanager.utils.Messages;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 /**
  * Created by Noah Fetz on 15.11.2016.
@@ -24,18 +24,19 @@ public class NotifyCommand implements SimpleCommand {
         CommandSource source = invocation.source();
 
         if (!(source instanceof Player)) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.ONLY_INGAME_COMMAND));
+            source.sendMessage(Messages.onlyIngameCommand());
             return;
         }
         if (!source.hasPermission("servermanager.notify")) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+            source.sendMessage(Messages.noPermission());
             return;
         }
 
         boolean toggle = !BackendServerManager.getNotificationStatus((Player) source);
 
         BackendServerManager.setNotificationStatus((Player) source, toggle);
-        source.sendMessage(Component.text(Messages.PREFIX + (toggle ? "§7You're now going to receive notifications" : "§7You won't receive any notifications from now on")));
+        MiniMessage mm = MiniMessage.miniMessage();
+        source.sendMessage(Messages.PREFIX.append(mm.deserialize("ServerManager notifications are now " + (toggle ? "<green>Enabled" : "<red>Disabled") + "<reset>.")));
     }
 
 }

@@ -6,7 +6,7 @@ import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.DatabaseRegisteredServer;
 import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 /**
  * Created by Noah Fetz on 27.05.2016.
@@ -26,8 +26,9 @@ public class ServerSwitchListener {
         if(server == null) return; // Shouldn't happen but IntelliJ pisses me off about this
 
         if(server.restricted()) {
-            if(!e.getPlayer().hasPermission("servermanager.server." + serverTarget) && !e.getPlayer().hasPermission("servermanager.ignorerestricion")){
-                e.getPlayer().sendMessage(Component.text(Messages.PREFIX + "§cYou're not allowed to join this server"));
+            if(!e.getPlayer().hasPermission("servermanager.server." + serverTarget) && !e.getPlayer().hasPermission("servermanager.ignorerestricion")) {
+                MiniMessage mm = MiniMessage.miniMessage();
+                e.getPlayer().sendMessage(Messages.PREFIX.append(mm.deserialize("<red>You're not allowed to join this server.")));
                 e.setResult(ServerPreConnectEvent.ServerResult.denied());
             }
         }

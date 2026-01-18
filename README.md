@@ -49,7 +49,8 @@ For restricted servers, you'll need the `servermanager.server.*` or `servermanag
 ## TODO
 - [x] Migrate to Gradle<br>
 - [x] Initial port to Velocity<br>
-- [ ] Change Messages to Support Minimessage Format<br>
+- [x] Change Messages to Support Minimessage Format<br>
+- [ ] Make every Message be configurable
 - [ ] Implement Tab Completion for Commands<br>
 - [ ] Release on Velocity Resource Site and Modrinth
 

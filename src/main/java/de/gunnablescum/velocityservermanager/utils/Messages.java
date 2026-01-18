@@ -1,6 +1,9 @@
 package de.gunnablescum.velocityservermanager.utils;
 
 import de.gunnablescum.velocityservermanager.ServerManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import java.io.IOException;
 
@@ -9,34 +12,36 @@ import java.io.IOException;
  * Contributors: GunnableScum
  */
 public class Messages {
-    public static String PREFIX;
+    public static Component PREFIX;
 
-    public static String NO_PERMISSION;
-    public static String SERVERS_LIST_HEADER;
-    public static String ALL_SERVER_RELOAD_BROADCAST;
-    public static String PREVIOUS_SERVER_DELETED_INFO;
-    public static String SERVER_DELETED_BROADCAST;
-    public static String SERVER_NOT_FOUND;
-    public static String SERVER_LIST_INFO;
-    public static String SERVER_RELOADED_BROADCAST;
-    public static String SERVER_ENABLED_BROADCAST;
-    public static String SERVER_DISABLED_BROADCAST;
-    public static String SERVER_ALREADY_ENABLED;
-    public static String SERVER_ALREADY_DISABLED;
-    public static String SERVER_EMPTIED_BROADCAST;
-    public static String SERVER_NOT_ACTIVE;
-    public static String PREVIOUS_SERVER_EMPTIED;
-    public static String GOTO_DESCRIPTION;
-    public static String GOTO_PLAYER_NOT_ONLINE;
-    public static String GOTO_CONNECTED;
-    public static String GOTO_ALREADY_ON_SERVER;
-    public static String ONLY_INGAME_COMMAND;
-    public static String LOBBY_ALREADY_ON_LOBBY;
-    public static String WHEREAMI_SERVER_INFO;
-    public static String NO_ACTION_COMMITED;
-    public static String INVALID_ARGS;
-    public static String SERVER_PROXY_MANAGED;
-    public static String SERVER_ADDED_BROADCAST;
+    private static String NO_PERMISSION;
+    private static String SERVERS_LIST_HEADER;
+    private static String ALL_SERVER_RELOAD_BROADCAST;
+    private static String PREVIOUS_SERVER_DELETED_INFO;
+    private static String SERVER_DELETED_BROADCAST;
+    private static String SERVER_NOT_FOUND;
+    private static String SERVER_LIST_INFO;
+    private static String SERVER_RELOADED_BROADCAST;
+    private static String SERVER_ENABLED_BROADCAST;
+    private static String SERVER_DISABLED_BROADCAST;
+    private static String SERVER_ALREADY_ENABLED;
+    private static String SERVER_ALREADY_DISABLED;
+    private static String SERVER_EMPTIED_BROADCAST;
+    private static String SERVER_NOT_ACTIVE;
+    private static String PREVIOUS_SERVER_EMPTIED;
+    private static String GOTO_DESCRIPTION;
+    private static String GOTO_PLAYER_NOT_ONLINE;
+    private static String GOTO_CONNECTED;
+    private static String GOTO_ALREADY_ON_SERVER;
+    private static String ONLY_INGAME_COMMAND;
+    private static String LOBBY_ALREADY_ON_LOBBY;
+    private static String WHEREAMI_SERVER_INFO;
+    private static String NO_ACTION_COMMITED;
+    private static String INVALID_ARGS;
+    private static String SERVER_PROXY_MANAGED;
+    private static String SERVER_ADDED_BROADCAST;
+
+    private static final MiniMessage mm = MiniMessage.miniMessage();
 
     public static void loadMessages(){
         Config config;
@@ -45,32 +50,156 @@ public class Messages {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        PREFIX = config.getString("Messages.PREFIX", "");
-        NO_PERMISSION = config.getString("Messages.NO_PERMISSION", "");
-        SERVERS_LIST_HEADER = config.getString("Messages.SERVERS_LIST_HEADER", "");
-        ALL_SERVER_RELOAD_BROADCAST = config.getString("Messages.ALL_SERVER_RELOAD_BROADCAST", "");
-        PREVIOUS_SERVER_DELETED_INFO = config.getString("Messages.PREVIOUS_SERVER_DELETED_INFO", "");
-        SERVER_DELETED_BROADCAST = config.getString("Messages.SERVER_DELETED_BROADCAST", "");
-        SERVER_NOT_FOUND = config.getString("Messages.SERVER_NOT_FOUND", "");
-        SERVER_LIST_INFO = config.getString("Messages.SERVER_LIST_INFO", "");
-        SERVER_RELOADED_BROADCAST = config.getString("Messages.SERVER_RELOADED_BROADCAST", "");
-        SERVER_ENABLED_BROADCAST = config.getString("Messages.SERVER_ENABLED_BROADCAST", "");
-        SERVER_ALREADY_ENABLED = config.getString("Messages.SERVER_ALREADY_ENABLED", "");
-        SERVER_DISABLED_BROADCAST = config.getString("Messages.SERVER_DISABLED_BROADCAST", "");
-        SERVER_ALREADY_DISABLED = config.getString("Messages.SERVER_ALREADY_DISABLED", "");
-        SERVER_EMPTIED_BROADCAST = config.getString("Messages.SERVER_EMPTIED_BROADCAST", "");
-        SERVER_ADDED_BROADCAST = config.getString("Messages.SERVER_ADDED_BROADCAST", "");
-        SERVER_NOT_ACTIVE = config.getString("Messages.SERVER_NOT_ACTIVE", "");
-        PREVIOUS_SERVER_EMPTIED = config.getString("Messages.PREVIOUS_SERVER_EMPTIED", "");
-        GOTO_DESCRIPTION = config.getString("Messages.GOTO_DESCRIPTION", "");
-        GOTO_PLAYER_NOT_ONLINE = config.getString("Messages.GOTO_PLAYER_NOT_ONLINE", "");
-        GOTO_CONNECTED = config.getString("Messages.GOTO_CONNECTED", "");
-        GOTO_ALREADY_ON_SERVER = config.getString("Messages.GOTO_ALREADY_ON_SERVER", "");
-        ONLY_INGAME_COMMAND = config.getString("Messages.ONLY_INGAME_COMMAND", "");
-        LOBBY_ALREADY_ON_LOBBY = config.getString("Messages.LOBBY_ALREADY_ON_LOBBY", "");
-        WHEREAMI_SERVER_INFO = config.getString("Messages.WHEREAMI_SERVER_INFO", "");
-        NO_ACTION_COMMITED = config.getString("Messages.NO_ACTION_COMMITED", "");
-        INVALID_ARGS = config.getString("Messages.INVALID_ARGS", "");
-        SERVER_PROXY_MANAGED = config.getString("Messages.SERVER_PROXY_MANAGED", "");
+        PREFIX = mm.deserialize(config.getString("Messages.PREFIX", ""));
+        
+        NO_PERMISSION                   = config.getString("Messages.NO_PERMISSION", "");
+        SERVERS_LIST_HEADER             = config.getString("Messages.SERVERS_LIST_HEADER", "");
+        ALL_SERVER_RELOAD_BROADCAST     = config.getString("Messages.ALL_SERVER_RELOAD_BROADCAST", "");
+        PREVIOUS_SERVER_DELETED_INFO    = config.getString("Messages.PREVIOUS_SERVER_DELETED_INFO", "");
+        SERVER_DELETED_BROADCAST        = config.getString("Messages.SERVER_DELETED_BROADCAST", "");
+        SERVER_NOT_FOUND                = config.getString("Messages.SERVER_NOT_FOUND", "");
+        SERVER_LIST_INFO                = config.getString("Messages.SERVER_LIST_INFO", "");
+        SERVER_RELOADED_BROADCAST       = config.getString("Messages.SERVER_RELOADED_BROADCAST", "");
+        SERVER_ENABLED_BROADCAST        = config.getString("Messages.SERVER_ENABLED_BROADCAST", "");
+        SERVER_ALREADY_ENABLED          = config.getString("Messages.SERVER_ALREADY_ENABLED", "");
+        SERVER_DISABLED_BROADCAST       = config.getString("Messages.SERVER_DISABLED_BROADCAST", "");
+        SERVER_ALREADY_DISABLED         = config.getString("Messages.SERVER_ALREADY_DISABLED", "");
+        SERVER_EMPTIED_BROADCAST        = config.getString("Messages.SERVER_EMPTIED_BROADCAST", "");
+        SERVER_ADDED_BROADCAST          = config.getString("Messages.SERVER_ADDED_BROADCAST", "");
+        SERVER_NOT_ACTIVE               = config.getString("Messages.SERVER_NOT_ACTIVE", "");
+        PREVIOUS_SERVER_EMPTIED         = config.getString("Messages.PREVIOUS_SERVER_EMPTIED", "");
+        GOTO_DESCRIPTION                = config.getString("Messages.GOTO_DESCRIPTION", "");
+        GOTO_PLAYER_NOT_ONLINE          = config.getString("Messages.GOTO_PLAYER_NOT_ONLINE", "");
+        GOTO_CONNECTED                  = config.getString("Messages.GOTO_CONNECTED", "");
+        GOTO_ALREADY_ON_SERVER          = config.getString("Messages.GOTO_ALREADY_ON_SERVER", "");
+        ONLY_INGAME_COMMAND             = config.getString("Messages.ONLY_INGAME_COMMAND", "");
+        LOBBY_ALREADY_ON_LOBBY          = config.getString("Messages.LOBBY_ALREADY_ON_LOBBY", "");
+        WHEREAMI_SERVER_INFO            = config.getString("Messages.WHEREAMI_SERVER_INFO", "");
+        NO_ACTION_COMMITED              = config.getString("Messages.NO_ACTION_COMMITED", "");
+        INVALID_ARGS                    = config.getString("Messages.INVALID_ARGS", "");
+        SERVER_PROXY_MANAGED            = config.getString("Messages.SERVER_PROXY_MANAGED", "");
+    }
+
+    // No Variables
+    public static Component noPermission() { return PREFIX.append(mm.deserialize(NO_PERMISSION)); }
+    public static Component serversListHeader() { return PREFIX.append(mm.deserialize(SERVERS_LIST_HEADER)); }
+    public static Component previousServerDeletedInfo() { return PREFIX.append(mm.deserialize(PREVIOUS_SERVER_DELETED_INFO)); }
+    public static Component serverNotFound() { return PREFIX.append(mm.deserialize(SERVER_NOT_FOUND)); }
+    public static Component serverAlreadyEnabled() { return PREFIX.append(mm.deserialize(SERVER_ALREADY_ENABLED)); }
+    public static Component serverAlreadyDisabled() { return PREFIX.append(mm.deserialize(SERVER_ALREADY_DISABLED)); }
+    public static Component serverNotActive() { return PREFIX.append(mm.deserialize(SERVER_NOT_ACTIVE)); }
+    public static Component previousServerEmptied() { return PREFIX.append(mm.deserialize(PREVIOUS_SERVER_EMPTIED)); }
+    public static Component gotoDescription() { return PREFIX.append(mm.deserialize(GOTO_DESCRIPTION)); }
+    public static Component onlyIngameCommand() { return PREFIX.append(mm.deserialize(ONLY_INGAME_COMMAND)); }
+    public static Component alreadyOnLobby() { return PREFIX.append(mm.deserialize(LOBBY_ALREADY_ON_LOBBY)); }
+    public static Component noActionCommited() { return PREFIX.append(mm.deserialize(NO_ACTION_COMMITED)); }
+    public static Component proxyManagedServer() { return PREFIX.append(mm.deserialize(SERVER_PROXY_MANAGED)); }
+
+    // One Variable
+    public static Component allServerReloadBroadcast(String admin) {
+        return PREFIX.append(mm.deserialize(
+                ALL_SERVER_RELOAD_BROADCAST,
+                Placeholder.unparsed("admin", admin)
+        ));
+    }
+
+    public static Component serverAddedBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_ADDED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component gotoPlayerOffline(String playerName) {
+        return PREFIX.append(mm.deserialize(
+                GOTO_PLAYER_NOT_ONLINE,
+                Placeholder.unparsed("player", playerName)
+        ));
+    }
+
+    public static Component gotoConnected(String serverName) {
+        return PREFIX.append(mm.deserialize(
+                GOTO_CONNECTED,
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component gotoAlreadyOnServer(String serverName) {
+        return PREFIX.append(mm.deserialize(
+                GOTO_ALREADY_ON_SERVER,
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component whereAmIServerInfo(String serverName) {
+        return PREFIX.append(mm.deserialize(
+                WHEREAMI_SERVER_INFO,
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component invalidArgs(String error) {
+        return PREFIX.append(mm.deserialize(
+                INVALID_ARGS,
+                Placeholder.unparsed("err", error)
+        ));
+    }
+
+    // Two Variables
+    public static Component serverDeletedBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_DELETED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component serverReloadedBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_RELOADED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component serverEnabledBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_ENABLED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component serverDisabledBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_DISABLED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component serverEmptiedBroadcast(String admin, String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_EMPTIED_BROADCAST,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    // Multiple Variables
+    public static Component serverListInfo(String id, String server, String status, String enabled, String lobby, String restricted, String displayname, String ip, String port) {
+        return mm.deserialize(
+                SERVER_LIST_INFO,
+                Placeholder.parsed("id", id),
+                Placeholder.parsed("server", server),
+                Placeholder.parsed("status", status),
+                Placeholder.parsed("enabled", enabled),
+                Placeholder.parsed("lobby", lobby),
+                Placeholder.parsed("restricted", restricted),
+                Placeholder.parsed("displayname", displayname),
+                Placeholder.parsed("ip", ip),
+                Placeholder.parsed("port", port)
+        );
     }
 }

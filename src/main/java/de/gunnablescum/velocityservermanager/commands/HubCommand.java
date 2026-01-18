@@ -6,7 +6,6 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.Messages;
-import net.kyori.adventure.text.Component;
 
 import java.security.SecureRandom;
 
@@ -25,7 +24,7 @@ public class HubCommand implements SimpleCommand {
     public void execute(Invocation invocation) {
         CommandSource source = invocation.source();
         if (!(source instanceof Player p)) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.ONLY_INGAME_COMMAND));
+            source.sendMessage(Messages.onlyIngameCommand());
             return;
         }
 
@@ -34,6 +33,6 @@ public class HubCommand implements SimpleCommand {
             return;
         }
 
-        p.sendMessage(Component.text(Messages.PREFIX + Messages.LOBBY_ALREADY_ON_LOBBY));
+        p.sendMessage(Messages.alreadyOnLobby());
     }
 }

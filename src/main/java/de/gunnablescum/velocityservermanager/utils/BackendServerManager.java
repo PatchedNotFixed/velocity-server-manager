@@ -150,16 +150,21 @@ public class BackendServerManager {
      * @param server The DatabaseRegisteredServer to add
      */
     public static void addServerToVelocity(DatabaseRegisteredServer server){
-        ServerInfo serverInfo = new ServerInfo(server.systemName(), new InetSocketAddress(server.address(), server.port()));
-        proxyServer.registerServer(serverInfo);
+        if(server.lobby() == null) {
+            ServerManager.lobbies.add(proxyServer.getServer(server.systemName()).orElseThrow());
+            return;
+        }
+        server.addToProxy();
         (server.lobby() ? ServerManager.lobbies : ServerManager.nonlobbies).add(proxyServer.getServer(server.systemName()).orElseThrow());
     }
 
     /**
      * Removes all servers from Velocity
      */
-    public static void clearAllServers(){
-        proxyServer.getAllServers().forEach(server -> proxyServer.unregisterServer(server.getServerInfo()));
+    public static void clearAllServers() {
+        proxyServer.getAllServers().forEach(server -> {
+            if(!server.getServerInfo().getName().equals("lobby")) proxyServer.unregisterServer(server.getServerInfo());
+        });
         ServerManager.lobbies.clear();
         ServerManager.nonlobbies.clear();
     }

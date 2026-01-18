@@ -6,7 +6,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.gunnablescum.velocityservermanager.ServerManager;
-import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
@@ -34,7 +34,7 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
         for(Player all : server.get().getPlayersConnected()) {
             if(force || !all.hasPermission("servermanager.ignorekick"))
                 all.createConnectionRequest(ServerManager.lobbies.get(new SecureRandom().nextInt(ServerManager.lobbies.size()))).connect();
-            all.sendMessage(Component.text(Messages.PREFIX + (force ? Messages.PREVIOUS_SERVER_DELETED_INFO : Messages.PREVIOUS_SERVER_EMPTIED)));
+            all.sendMessage(force ? Messages.previousServerDeletedInfo() : Messages.previousServerEmptied());
         }
     }
 
@@ -87,18 +87,19 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
 
     public void sendInfo(CommandSource source) {
         if(!source.hasPermission("servermanager.servers.info")) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+            source.sendMessage(Messages.noPermission());
             return;
         }
-        source.sendMessage(Component.text(Messages.PREFIX + "§7Info about§8: " + displayName()));
-        source.sendMessage(Component.text("§7Systemname§8:§a " + systemName()));
-        source.sendMessage(Component.text("§7Status§8: " + onlineOfflineString(online())));
-        source.sendMessage(Component.text("§7Displayname§8: " + (hasDedicatedDisplayName() ? displayName() : "§cNone")));
-        source.sendMessage(Component.text("§7Enabled§8: " + trueFalseString(active())));
-        source.sendMessage(Component.text("§7Lobby§8: " + trueFalseString(lobby())));
-        source.sendMessage(Component.text("§7Restricted§8: " + trueFalseString(restricted())));
-        source.sendMessage(Component.text("§7IP§8:§a " + address()));
-        source.sendMessage(Component.text("§7Port§8:§a " + port()));
+        MiniMessage mm = MiniMessage.miniMessage();
+        source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>Info about<dark_gray>: " + displayName())));
+        source.sendMessage(mm.deserialize("<gray>Systemname<dark_gray>:<green> " + systemName()));
+        source.sendMessage(mm.deserialize("<gray>Status<dark_gray>: " + onlineOfflineString(online())));
+        source.sendMessage(mm.deserialize("<gray>Displayname<dark_gray>: " + (hasDedicatedDisplayName() ? displayName() : "<red>None")));
+        source.sendMessage(mm.deserialize("<gray>Enabled<dark_gray>: " + trueFalseString(active())));
+        source.sendMessage(mm.deserialize("<gray>Lobby<dark_gray>: " + trueFalseString(lobby())));
+        source.sendMessage(mm.deserialize("<gray>Restricted<dark_gray>: " + trueFalseString(restricted())));
+        source.sendMessage(mm.deserialize("<gray>IP<dark_gray>:<green> " + address()));
+        source.sendMessage(mm.deserialize("<gray>Port<dark_gray>:<green> " + port()));
         if(!active()) return;
 
         StringBuilder players = null;
@@ -109,15 +110,15 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
 
         for (Player all : registeredServer.getPlayersConnected()) {
             if (players == null) {
-                players = new StringBuilder("§a" + all.getUsername());
+                players = new StringBuilder("<green>" + all.getUsername());
             } else {
-                players.append("§7, ").append(all.getUsername());
+                players.append("<gray>, ").append(all.getUsername());
             }
         }
 
-        if(players == null) players = new StringBuilder("§cNone");
+        if(players == null) players = new StringBuilder("<red>None");
 
-        source.sendMessage(Component.text("§7Players§8: " + players));
+        source.sendMessage(mm.deserialize("<gray>Players<dark_gray>: " + players));
     }
 
     // Haha, another tri-state boolean
@@ -126,10 +127,10 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
     }
 
     private String trueFalseString(Boolean bool){
-        return bool ? "§aTrue" : "§cFalse";
+        return bool ? "<green>True</green>" : "<red>False</red>";
     }
     private String onlineOfflineString(Boolean bool){
-        return bool ? "§aOnline" : "§cOffline";
+        return bool ? "<green>Online</green>" : "<red>Offline</red>";
     }
 
 }

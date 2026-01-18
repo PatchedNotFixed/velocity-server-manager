@@ -162,7 +162,7 @@ public class MySQL {
                         rs.getString("displayname"),
                         rs.getString("ip"),
                         rs.getInt("port"),
-                        rs.getBoolean("islobby"),
+                        rs.getInt("islobby") == 2 ? null : rs.getBoolean("islobby"),
                         rs.getBoolean("isrestricted"),
                         rs.getBoolean("isactive"),
                         rs.getBoolean("isonline")

@@ -8,7 +8,6 @@ import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.DatabaseRegisteredServer;
 import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
-import net.kyori.adventure.text.Component;
 
 /**
  * Created by Noah Fetz on 17.06.2016.
@@ -25,7 +24,7 @@ public class WhereAmICommand implements SimpleCommand {
     public void execute(Invocation invocation) {
         CommandSource source = invocation.source();
         if (!(source instanceof Player p)) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.ONLY_INGAME_COMMAND));
+            source.sendMessage(Messages.onlyIngameCommand());
             return;
         }
 
@@ -33,6 +32,6 @@ public class WhereAmICommand implements SimpleCommand {
         String fallbackName = p.getCurrentServer().get().getServerInfo().getName();
         DatabaseRegisteredServer server = MySQL.getServer(fallbackName);
 
-        p.sendMessage(Component.text(Messages.PREFIX + Messages.WHEREAMI_SERVER_INFO.replace("%SERVER%", server != null ? server.displayName() : fallbackName)));
+        p.sendMessage(Messages.whereAmIServerInfo(server != null ? server.displayName() : fallbackName));
     }
 }

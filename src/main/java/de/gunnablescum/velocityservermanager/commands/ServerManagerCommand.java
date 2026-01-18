@@ -4,12 +4,14 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.BackendServerManager;
 import de.gunnablescum.velocityservermanager.utils.DatabaseRegisteredServer;
 import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import javax.annotation.Nullable;
 
@@ -28,6 +30,7 @@ public class ServerManagerCommand implements SimpleCommand {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
         String name = "the network Administrator";
+        MiniMessage mm = MiniMessage.miniMessage();
         if(source instanceof Player p) {
             name = p.getUsername();
         }
@@ -45,12 +48,12 @@ public class ServerManagerCommand implements SimpleCommand {
 
             if(action.equalsIgnoreCase("reload")){
                 if(!source.hasPermission("servermanager.servers.reload")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 BackendServerManager.clearAllServers();
                 BackendServerManager.addAllServers();
-                sendPermittedBroadcast(Messages.PREFIX + String.format(Messages.ALL_SERVER_RELOAD_BROADCAST, name));
+                sendPermittedBroadcast(Messages.allServerReloadBroadcast(name));
                 return;
             }
 
@@ -62,11 +65,11 @@ public class ServerManagerCommand implements SimpleCommand {
         DatabaseRegisteredServer target = MySQL.getServer(serverName);
         if(!action.equalsIgnoreCase("add")) {
             if(target == null) {
-                source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_NOT_FOUND));
+                source.sendMessage(Messages.serverNotFound());
                 return;
             }
             if(target.isProxyManaged()) {
-                source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_PROXY_MANAGED));
+                source.sendMessage(Messages.proxyManagedServer());
                 return;
             }
         }
@@ -74,66 +77,60 @@ public class ServerManagerCommand implements SimpleCommand {
         if(args.length == 2) {
             if(action.equalsIgnoreCase("delete")){
                 if(!source.hasPermission("servermanager.servers.delete")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 target.empty(true);
                 target.deleteFromDatabase();
                 target.removeFromProxy();
 
-                sendPermittedBroadcast(Messages.PREFIX + String.format(Messages.SERVER_DELETED_BROADCAST,
-                        target.displayName(),
-                        name
-                ));
+                sendPermittedBroadcast(Messages.serverDeletedBroadcast(name, target.displayName()));
                 return;
             }
 
             if(action.equalsIgnoreCase("reload")) {
                 if(!source.hasPermission("servermanager.servers.reload")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 target.reloadInProxy();
-                sendPermittedBroadcast(Messages.PREFIX + String.format(Messages.SERVER_RELOADED_BROADCAST,
-                        target.displayName(),
-                        name)
-                );
+                sendPermittedBroadcast(Messages.serverReloadedBroadcast(name, target.displayName()));
                 return;
             }
 
             if(action.equalsIgnoreCase("enable")) {
                 if(!source.hasPermission("servermanager.servers.enable")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 if (target.active()) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_ALREADY_ENABLED));
+                    source.sendMessage(Messages.serverAlreadyEnabled());
                     return;
                 }
 
                 target.setActive(true);
-                sendPermittedBroadcast(Messages.PREFIX + Messages.SERVER_ENABLED_BROADCAST);
+                sendPermittedBroadcast(Messages.serverEnabledBroadcast(name, target.displayName()));
                 return;
             }
 
             if(action.equalsIgnoreCase("disable")) {
                 if(!source.hasPermission("servermanager.servers.disable")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
-                    return;
-                }
-                if (target.getFromProxy() == null) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_NOT_FOUND));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 if (!target.active()) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_ALREADY_DISABLED));
+                    source.sendMessage(Messages.serverAlreadyDisabled());
+                    return;
+                }
+                if (target.getFromProxy() == null) {
+                    source.sendMessage(Messages.serverNotFound());
                     return;
                 }
 
-                target.setActive(false);
                 target.empty(true);
+                target.setActive(false);
                 target.removeFromProxy();
-                sendPermittedBroadcast(Messages.PREFIX + Messages.SERVER_DISABLED_BROADCAST);
+                sendPermittedBroadcast(Messages.serverDisabledBroadcast(name, target.displayName()));
                 return;
             }
 
@@ -144,18 +141,15 @@ public class ServerManagerCommand implements SimpleCommand {
 
             if(action.equalsIgnoreCase("kick")){
                 if (!target.active() || target.getFromProxy() == null) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVER_NOT_ACTIVE));
+                    source.sendMessage(Messages.serverNotActive());
                     return;
                 }
                 if(!source.hasPermission("servermanager.servers.kick")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 target.empty(false);
-                sendPermittedBroadcast(Messages.PREFIX + String.format(Messages.SERVER_EMPTIED_BROADCAST,
-                        target.displayName(),
-                        name
-                ));
+                sendPermittedBroadcast(Messages.serverEmptiedBroadcast(name, target.displayName()));
                 return;
             }
 
@@ -167,36 +161,36 @@ public class ServerManagerCommand implements SimpleCommand {
             Boolean setArg = validateBoolean(args[2]);
 
             if(setArg == null) {
-                source.sendMessage(Component.text(Messages.PREFIX + String.format(Messages.INVALID_ARGS, "INVALID_BOOL")));
+                source.sendMessage(Messages.invalidArgs("INVALID_BOOL"));
                 return;
             }
 
             if(action.equalsIgnoreCase("setlobby")) {
                 if(target.lobby() == setArg) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_ACTION_COMMITED));
+                    source.sendMessage(Messages.noActionCommited());
                     return;
                 }
                 if(!source.hasPermission("servermanager.servers.setlobby")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 target.setLobby(setArg);
                 target.reloadInProxy();
-                sendPermittedBroadcast(Messages.PREFIX + "§7The server " + target.displayName() + " §7has been " + (setArg ? "flagged" : "unflagged") + " as a lobby by " + name);
+                sendPermittedBroadcast(Messages.PREFIX.append(mm.deserialize("The server " + target.displayName() + " has been " + (setArg ? "flagged" : "unflagged") + " as a lobby by " + name)));
                 return;
             }
 
             if(action.equalsIgnoreCase("setrestricted")) {
                 if(setArg == target.restricted()) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_ACTION_COMMITED));
+                    source.sendMessage(Messages.noActionCommited());
                     return;
                 }
                 if(!source.hasPermission("servermanager.servers.setrestricted")) {
-                    source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+                    source.sendMessage(Messages.noPermission());
                     return;
                 }
                 target.setRestricted(setArg);
-                sendPermittedBroadcast(Messages.PREFIX + "§7The server " + target.displayName() + " §7has been "+ (setArg ? "restricted" : "unrestricted") + " by " + name);
+                sendPermittedBroadcast(Messages.PREFIX.append(mm.deserialize("The server " + target.displayName() + " has been "+ (setArg ? "restricted" : "unrestricted") + " by " + name)));
                 return;
             }
             sendAvailableCommands(source);
@@ -209,12 +203,12 @@ public class ServerManagerCommand implements SimpleCommand {
         }
 
         if(!source.hasPermission("servermanager.servers.add")) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+            source.sendMessage(Messages.noPermission());
             return;
         }
 
         if(target != null) {
-            source.sendMessage(Component.text(Messages.PREFIX + "§7This server is already in the database"));
+            source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>This server is already in the database")));
             return;
         }
 
@@ -227,17 +221,17 @@ public class ServerManagerCommand implements SimpleCommand {
         try {
             port = Integer.parseInt(args[3]);
         } catch (NumberFormatException ex) {
-            source.sendMessage(Component.text(Messages.PREFIX + String.format(Messages.INVALID_ARGS, "NAN_PORT")));
+            source.sendMessage(Messages.invalidArgs("NAN_PORT"));
             return;
         }
 
         if(port < 1 || port > 65535) {
-            source.sendMessage(Component.text(Messages.PREFIX + String.format(Messages.INVALID_ARGS, "PORT_OUT_OF_RANGE")));
+            source.sendMessage(Messages.invalidArgs("PORT_OUT_OF_RANGE"));
             return;
         }
 
         if(isLobby == null || isEnabled == null || isRestricted == null) {
-            source.sendMessage(Component.text(Messages.PREFIX + String.format(Messages.INVALID_ARGS, "INVALID_BOOL")));
+            source.sendMessage(Messages.invalidArgs("INVALID_BOOL"));
             return;
         }
 
@@ -247,59 +241,57 @@ public class ServerManagerCommand implements SimpleCommand {
         }
         String trimmedDisplayName = displayname.toString().trim();
         BackendServerManager.createServer(serverName, ip, port, trimmedDisplayName, isLobby, isEnabled, isRestricted, false);
-        sendPermittedBroadcast(Messages.PREFIX + String.format(Messages.SERVER_ADDED_BROADCAST,
-                trimmedDisplayName,
-                name
-        ));
+        sendPermittedBroadcast(Messages.serverAddedBroadcast(name, trimmedDisplayName.isBlank() ? serverName : trimmedDisplayName));
     }
 
     private void printServerList(CommandSource source) {
         if(!source.hasPermission("servermanager.servers.list")) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+            source.sendMessage(Messages.noPermission());
             return;
         }
-        source.sendMessage(Component.text(Messages.PREFIX + Messages.SERVERS_LIST_HEADER));
+        source.sendMessage(Messages.serversListHeader());
         int i = 1;
         for (DatabaseRegisteredServer server : BackendServerManager.getAllServers()) {
-            source.sendMessage(Component.text(String.format(Messages.SERVER_LIST_INFO,
-                    i,
+            source.sendMessage(Messages.serverListInfo(
+                    String.valueOf(i),
                     server.systemName(),
                     onlineOfflineString(server.online()),
-                    server.isProxyManaged() ? "§eProxy-Managed" : trueFalseString(server.active()),
+                    server.isProxyManaged() ? "<yellow>Proxy-Managed</yellow>" : trueFalseString(server.active()),
                     trueFalseString(server.lobby()),
-                    server.displayName(),
                     trueFalseString(server.restricted()),
+                    server.displayName(),
                     server.address(),
-                    server.port()
-            )));
+                    String.valueOf(server.port())
+            ));
             i++;
         }
     }
 
     private void sendAvailableCommands(CommandSource source) {
+        MiniMessage mm = MiniMessage.miniMessage();
         if(!source.hasPermission("servermanager.help")) {
-            source.sendMessage(Component.text(Messages.PREFIX + Messages.NO_PERMISSION));
+            source.sendMessage(Messages.noPermission());
             return;
         }
-        source.sendMessage(Component.text(Messages.PREFIX + "§7The following commands are available to you§8: §e[optional] <needed>"));
-        source.sendMessage(Component.text("§e/servermanager §8- §7Shows this help site"));
-        source.sendMessage(Component.text("§e/servermanager add <servername> <ip> <port> <islobby> <isactive> <isrestricted> <displayname> §8- §7Adds a server to your network")); //Done
-        source.sendMessage(Component.text("§e/servermanager delete <servername> §8- §7Deletes a server from your network")); //Done
-        source.sendMessage(Component.text("§e/servermanager reload [servername] §8- §7Reloads the data of a specific server or all servers in the network")); //Done
-        source.sendMessage(Component.text("§e/servermanager list §8- §7Lists all servers in your network")); //Done
-        source.sendMessage(Component.text("§e/servermanager info <servername> §8- §7Shows some information about a specific server")); //Done
-        source.sendMessage(Component.text("§e/servermanager enable <servername> §8- §7Enables a server, so players are able to connect to it")); //Done
-        source.sendMessage(Component.text("§e/servermanager disable <servername> §8- §7Disables a server, so players can't connect to it")); //Done
-        source.sendMessage(Component.text("§e/servermanager setlobby <name> <isLobby> §8- §7You can add a server to the lobby group or remove is")); //Done
-        source.sendMessage(Component.text("§e/servermanager setrestricted <name> <isrestricted> §8- §7You can restrict a server so only people with the permission servermanager.server.<servername> can join on it")); //Done
-        source.sendMessage(Component.text("§e/servermanager kick <servername> §8- §7Kicks all players from the specific server to a random lobby")); //Done
+        source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>The following commands are available to you<dark_gray>: <yellow>[optional] <needed>")));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager <dark_gray>- <gray>Shows this help site"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager add <servername> <ip> <port> <islobby> <isactive> <isrestricted> <displayname> <dark_gray>- <gray>Adds a server to your network"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager delete <servername> <dark_gray>- <gray>Deletes a server from your network"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager reload [servername] <dark_gray>- <gray>Reloads the data of a specific server or all servers in the network"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager list <dark_gray>- <gray>Lists all servers in your network"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager info <servername> <dark_gray>- <gray>Shows some information about a specific server"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager enable <servername> <dark_gray>- <gray>Enables a server, so players are able to connect to it"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager disable <servername> <dark_gray>- <gray>Disables a server, so players can't connect to it"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager setlobby <name> <isLobby> <dark_gray>- <gray>You can add a server to the lobby group or remove is"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager setrestricted <name> <isrestricted> <dark_gray>- <gray>You can restrict a server so only people with the permission servermanager.server.<servername> can join on it"));
+        source.sendMessage(mm.deserialize("<yellow>/servermanager kick <servername> <dark_gray>- <gray>Kicks all players from the specific server to a random lobby"));
     }
 
-    private String trueFalseString(Boolean bool){
-        return bool ? "§aTrue" : "§cFalse";
+    private String trueFalseString(Boolean bool) {
+        return bool == null || bool ? "<green>True</green>" : "<red>False</red>";
     }
-    private String onlineOfflineString(Boolean bool){
-        return bool ? "§aOnline" : "§cOffline";
+    private String onlineOfflineString(Boolean bool) {
+        return bool ? "<green>Online</green>" : "<red>Offline</red>";
     }
 
 //    public Iterable<String> onTabComplete(CommandSender sender, String[] args){
@@ -331,9 +323,9 @@ public class ServerManagerCommand implements SimpleCommand {
         return null;
     }
 
-    private void sendPermittedBroadcast(String message){
-        ServerManager instance = ServerManager.getInstance();
-        instance.getLogger().info(message);
-        instance.getProxyServer().getAllPlayers().stream().filter(all -> all.hasPermission("servermanager.notify") && BackendServerManager.getNotificationStatus(all)).forEach(all -> all.sendMessage(Component.text(message)));
+    private void sendPermittedBroadcast(Component component){
+        ProxyServer proxyServer = ServerManager.getInstance().getProxyServer();
+        proxyServer.getConsoleCommandSource().sendMessage(component);
+        proxyServer.getAllPlayers().stream().filter(all -> all.hasPermission("servermanager.notify") && BackendServerManager.getNotificationStatus(all)).forEach(all -> all.sendMessage(component));
     }
 }
