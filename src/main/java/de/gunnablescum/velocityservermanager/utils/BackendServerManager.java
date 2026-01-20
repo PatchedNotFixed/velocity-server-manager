@@ -1,13 +1,11 @@
 package de.gunnablescum.velocityservermanager.utils;
 
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import de.gunnablescum.velocityservermanager.ServerManager;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Noah Fetz on 20.05.2016.
@@ -45,69 +43,6 @@ public class BackendServerManager {
     }
 
     /**
-     * Adds a player to the database
-     *
-     * @param p The player to add to the database
-     */
-    public static void createPlayer(Player p){
-        if(MySQL.getPossiblyOutdatedPlayerName(p.getUniqueId().toString()) != null) return;
-        ArrayList<SQLStatementParameter> parameters = new ArrayList<>();
-        parameters.add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, p.getUniqueId().toString()));
-        parameters.add(new SQLStatementParameter(SQLStatementParameterType.STRING, 2, p.getUsername()));
-        parameters.add(new SQLStatementParameter(SQLStatementParameterType.BOOL, 3, false));
-
-        MySQL.update("INSERT INTO servermanager_players (uuid, name, notify) VALUES (?, ?, ?)", parameters);
-    }
-
-    /**
-     * Checks if the current player name is up-to-date
-     *
-     * @param p The player to check the name for
-     */
-    public static void checkPlayerName(Player p){
-        if(MySQL.getPossiblyOutdatedPlayerName(p.getUniqueId().toString()).equals(p.getUsername())){
-            ArrayList<SQLStatementParameter> parameters = new ArrayList<>();
-            parameters.add(new SQLStatementParameter(SQLStatementParameterType.STRING, 1, p.getUsername()));
-            parameters.add(new SQLStatementParameter(SQLStatementParameterType.STRING, 2, p.getUniqueId().toString()));
-
-            MySQL.update("UPDATE servermanager_players SET name = ? WHERE uuid = ?", parameters);
-        }
-    }
-
-    /**
-     * Sets the notification status for a player
-     *
-     * @param p The player to set the notification status for
-     * @param notify Whether the player should receive notifications or not
-     */
-    public static void setNotificationStatus(Player p, boolean notify){
-        ArrayList<SQLStatementParameter> parameters = new ArrayList<>();
-        parameters.add(new SQLStatementParameter(SQLStatementParameterType.BOOL, 1, notify));
-        parameters.add(new SQLStatementParameter(SQLStatementParameterType.STRING, 2, p.getUniqueId().toString()));
-
-        MySQL.update("UPDATE servermanager_players SET notify = ? WHERE uuid = ?", parameters);
-    }
-
-    /**
-     * Returns the notification status of a player
-     *
-     * @param p The player to get the notification status for
-     * @return Whether the player is receiving notifications or not
-     */
-    public static boolean getNotificationStatus(Player p){
-        return MySQL.getNotificationStatus(p.getUniqueId().toString());
-    }
-
-    /**
-     * Returns all servers in an ArrayList
-     *
-     * @return List<DatabaseRegisteredServer> of all server system names
-     */
-    public static List<DatabaseRegisteredServer> getAllServers(){
-        return MySQL.getAllServers();
-    }
-
-    /**
      * Sets the online status in the Database
      *
      * @param name The system name of the Server
@@ -125,7 +60,7 @@ public class BackendServerManager {
      * Adds all servers to Velocity
      */
     public static void addAllServers(){
-        for(DatabaseRegisteredServer server : getAllServers()){
+        for(DatabaseRegisteredServer server : MySQL.getAllServers()){
             if (!server.active()) continue;
             addServerToVelocity(server);
         }
@@ -141,7 +76,7 @@ public class BackendServerManager {
         if(server == null) throw new IllegalArgumentException("Server " + name + " not found in database.");
         ServerInfo serverInfo = new ServerInfo(name, new InetSocketAddress(server.address(), server.port()));
         proxyServer.registerServer(serverInfo);
-        (server.lobby() ? ServerManager.lobbies : ServerManager.nonlobbies).add(proxyServer.getServer(name).orElseThrow());
+        if(server.lobby()) ServerManager.lobbies.add(proxyServer.getServer(name).orElseThrow());
     }
 
     /**
@@ -155,7 +90,7 @@ public class BackendServerManager {
             return;
         }
         server.addToProxy();
-        (server.lobby() ? ServerManager.lobbies : ServerManager.nonlobbies).add(proxyServer.getServer(server.systemName()).orElseThrow());
+        if(server.lobby()) ServerManager.lobbies.add(proxyServer.getServer(server.systemName()).orElseThrow());
     }
 
     /**
@@ -166,6 +101,5 @@ public class BackendServerManager {
             if(!server.getServerInfo().getName().equals("lobby")) proxyServer.unregisterServer(server.getServerInfo());
         });
         ServerManager.lobbies.clear();
-        ServerManager.nonlobbies.clear();
     }
 }

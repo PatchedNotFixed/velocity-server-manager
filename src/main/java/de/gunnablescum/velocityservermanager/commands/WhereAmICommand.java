@@ -17,7 +17,7 @@ public class WhereAmICommand implements SimpleCommand {
 
 
     public WhereAmICommand(ServerManager plugin, CommandManager manager) {
-        manager.register(manager.metaBuilder("whereami").aliases("serverinfo").plugin(plugin).build(), this);
+        manager.register(manager.metaBuilder("whereami").aliases("wai").plugin(plugin).build(), this);
     }
 
     @Override

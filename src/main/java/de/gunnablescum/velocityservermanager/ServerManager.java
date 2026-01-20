@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -18,11 +19,12 @@ import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
 import de.gunnablescum.velocityservermanager.utils.ServerPinger;
 import net.kyori.adventure.text.Component;
+import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * Created by Noah Fetz on 20.05.2016.
@@ -47,9 +49,7 @@ public class ServerManager {
     @DataDirectory
     private Path dataDirectory;
 
-    public static ArrayList<RegisteredServer> lobbies = new ArrayList<>();
-    public static ArrayList<RegisteredServer> nonlobbies = new ArrayList<>();
-    private final int checkDelay = 10;
+    public static final List<RegisteredServer> lobbies = new ArrayList<>();
 
     private static ServerManager instance;
 
@@ -58,28 +58,32 @@ public class ServerManager {
         instance = this;
         logger.info("Initializing VelocityServerManager...");
         MySQL.init();
-        if(!MySQL.isConnected()) return;
+        if(!MySQL.isConnected()) return; // Huh?
+
+        // In case of an ungraceful shutdown, delete all Fallback Servers from Database
+        MySQL.deleteFallbackServers();
+
         Messages.loadMessages();
-        BackendServerManager.addAllServers();
 
         registerCommands();
         registerListener();
         startServerPinging();
 
-        if(proxyServer.getServer("lobby").isEmpty()) {
-            logger.severe("No server with the name 'lobby' found! Please make sure to have at least one server registered as 'lobby', otherwise velocity will not boot.");
-            logger.info("This is so that there is always at least one server to connect to.");
-            proxyServer.shutdown(Component.text("VelocityServerManager couldn't find a server named 'lobby'. Shutting down Proxy."));
-            return;
-        }
+        addFallbackServersToLobbies();
+        MySQL.insertFallbackServers(lobbies);
 
-        RegisteredServer fallback = proxyServer.getServer("lobby").get();
-
-        lobbies.add(fallback);
-
-        if(!MySQL.isInDatabase("lobby")) MySQL.insertFallbackServer(fallback);
-
+        BackendServerManager.addAllServers();
         logger.info("VelocityServerManager has been successfully initialized!");
+    }
+
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent e) {
+        // Delete all Fallback Servers from Database
+        MySQL.deleteFallbackServers();
+    }
+
+    private void addFallbackServersToLobbies() {
+        lobbies.addAll(proxyServer.getAllServers());
     }
 
     @Subscribe
@@ -90,11 +94,18 @@ public class ServerManager {
 
     private void registerCommands(){
         CommandManager manager = proxyServer.getCommandManager();
+        new AddServerCommand(this, manager);
+        new ClearServerCommand(this, manager);
+        new DeleteServerCommand(this, manager);
+        new DisableServerCommand(this, manager);
+        new EnableServerCommand(this, manager);
         new GotoCommand(this, manager);
         new HubCommand(this, manager);
-        new NotifyCommand(this, manager);
+        new ReloadServerCommand(this, manager);
+        new ServerInfoCommand(this, manager);
+        new ServersCommand(this, manager);
+        new SetFlagCommand(this, manager);
         new WhereAmICommand(this, manager);
-        new ServerManagerCommand(this, manager);
     }
 
     private void registerListener(){
@@ -120,6 +131,7 @@ public class ServerManager {
     }
 
     private void startServerPinging(){
+        int checkDelay = 10;
         proxyServer.getScheduler().buildTask(this, ServerPinger::checkAllServers).delay(checkDelay, TimeUnit.SECONDS).repeat(checkDelay, TimeUnit.SECONDS).schedule();
     }
 }

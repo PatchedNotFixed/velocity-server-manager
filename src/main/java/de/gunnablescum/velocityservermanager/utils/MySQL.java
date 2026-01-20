@@ -19,6 +19,7 @@ import java.util.List;
  * Created by Noah Fetz on 20.05.2016.
  * Contributors: GunnableScum
  */
+@SuppressWarnings("CallToPrintStackTrace") // I don't care about proper logging, if the DBMS or internet fails, the console and logs already gets to see it.
 public class MySQL {
 
     private static HikariDataSource dataSource;
@@ -56,7 +57,7 @@ public class MySQL {
         try {
             dataSource = new HikariDataSource(config);
         } catch(Exception ex) {
-            ServerManager.getInstance().getLogger().severe("Couldn't connect to Database. Please reconfigure the Plugin with proper Database Credentials!");
+            ServerManager.getInstance().getLogger().error("Couldn't connect to Database. Please reconfigure the Plugin with proper Database Credentials!");
             ServerManager.getInstance().getProxyServer().shutdown(Component.text("VelocityServerManager: Couldn't connect to Database. Please reconfigure the Plugin with proper Database Credentials!"));
             ex.printStackTrace();
             return;
@@ -77,26 +78,27 @@ public class MySQL {
     public static void createTable(){
         try {
             update("CREATE TABLE IF NOT EXISTS servermanager_servers(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, systemname TEXT, ip TEXT, port INT, displayname TEXT, islobby BOOLEAN, isactive BOOLEAN, isrestricted BOOLEAN, isonline BOOLEAN)", new ArrayList<>());
-            update("CREATE TABLE IF NOT EXISTS servermanager_players(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, uuid TEXT, name TEXT, notify BOOLEAN)", new ArrayList<>());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public static void update(String qry, List<SQLStatementParameter> parameters){
+    public static void update(String qry, @Nullable List<SQLStatementParameter> parameters){
         Connection connection = null;
 
         try {
             connection = dataSource.getConnection();
             PreparedStatement ps = connection.prepareStatement(qry);
 
-            for(SQLStatementParameter parameter : parameters) {
-                switch (parameter.type) {
-                    case STRING -> ps.setString(parameter.index, (String) parameter.value);
-                    case INT -> ps.setInt(parameter.index, (int) parameter.value);
-                    case DOUBLE -> ps.setDouble(parameter.index, (double) parameter.value);
-                    case BOOL -> ps.setBoolean(parameter.index, (boolean) parameter.value);
-                    case LONG -> ps.setLong(parameter.index, (long) parameter.value);
+            if (parameters != null) {
+                for(SQLStatementParameter parameter : parameters) {
+                    switch (parameter.type()) {
+                        case STRING -> ps.setString(parameter.index(), (String) parameter.value());
+                        case INT -> ps.setInt(parameter.index(), (int) parameter.value());
+                        case DOUBLE -> ps.setDouble(parameter.index(), (double) parameter.value());
+                        case BOOL -> ps.setBoolean(parameter.index(), (boolean) parameter.value());
+                        case LONG -> ps.setLong(parameter.index(), (long) parameter.value());
+                    }
                 }
             }
 
@@ -121,24 +123,23 @@ public class MySQL {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE systemname = ?");
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
-                DatabaseRegisteredServer server = new DatabaseRegisteredServer(
-                        rs.getString("systemname"),
-                        rs.getString("displayname"),
-                        rs.getString("ip"),
-                        rs.getInt("port"),
-                        rs.getInt("islobby") == 2 ? null : rs.getBoolean("islobby"),
-                        rs.getBoolean("isrestricted"),
-                        rs.getBoolean("isactive"),
-                        rs.getBoolean("isonline")
-                );
-                rs.close();
-                ps.close();
-                connection.close();
-                return server;
-            }
+            if (!rs.next()) return null;
+            DatabaseRegisteredServer server = new DatabaseRegisteredServer(
+                    rs.getString("systemname"),
+                    rs.getString("displayname"),
+                    rs.getString("ip"),
+                    rs.getInt("port"),
+                    rs.getInt("islobby") == 2 ? null : rs.getBoolean("islobby"),
+                    rs.getBoolean("isrestricted"),
+                    rs.getBoolean("isactive"),
+                    rs.getBoolean("isonline")
+            );
+            rs.close();
+            ps.close();
+            connection.close();
+            return server;
         } catch(SQLException e) {
-            ServerManager.getInstance().getLogger().severe("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
+            ServerManager.getInstance().getLogger().error("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
             e.printStackTrace();
         }
         return null;
@@ -148,7 +149,6 @@ public class MySQL {
         return getServer(name) != null;
     }
 
-    @Nullable
     public static List<DatabaseRegisteredServer> getAllServers() {
         List<DatabaseRegisteredServer> servers = new ArrayList<>();
         try {
@@ -173,49 +173,10 @@ public class MySQL {
             connection.close();
             return servers;
         } catch (SQLException e) {
-            ServerManager.getInstance().getLogger().severe("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
+            ServerManager.getInstance().getLogger().error("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
             e.printStackTrace();
         }
-        return null;
-    }
-
-    public static Boolean getNotificationStatus(String uuid) {
-        try {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_players WHERE uuid = ?");
-            ps.setString(1, uuid);
-            ResultSet rs = ps.executeQuery();
-            Boolean returnBool = null;
-            while(rs.next()){
-                returnBool = rs.getBoolean("notify");
-                break;
-            }
-            rs.close();
-            connection.close();
-            return returnBool;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String getPossiblyOutdatedPlayerName(String uuid) {
-        try {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_players WHERE uuid = ?");
-            ps.setString(1, uuid);
-            ResultSet rs = ps.executeQuery();
-            String returnStr = null;
-            while(rs.next()){
-                returnStr = rs.getString("name");
-                break;
-            }
-            rs.close();
-            connection.close();
-            return returnStr;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return List.of();
     }
 
     public static void insertFallbackServer(RegisteredServer server) {
@@ -224,7 +185,7 @@ public class MySQL {
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 2, server.getServerInfo().getAddress().getHostString()),
                 new SQLStatementParameter(SQLStatementParameterType.INT, 3, server.getServerInfo().getAddress().getPort()),
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 4, server.getServerInfo().getName()),
-                new SQLStatementParameter(SQLStatementParameterType.INT, 5, 2), // 2 = Forced by Proxy, don't manage with VSM
+                new SQLStatementParameter(SQLStatementParameterType.INT, 5, 2), // 2 = Forced by Proxy, don't manage with VSM (Yes this is basically a very fucked up tri-state boolean)
                 new SQLStatementParameter(SQLStatementParameterType.BOOL, 6, true),
                 new SQLStatementParameter(SQLStatementParameterType.BOOL, 7, false),
                 new SQLStatementParameter(SQLStatementParameterType.BOOL, 8, false)
@@ -235,5 +196,13 @@ public class MySQL {
         update("DELETE FROM servermanager_servers WHERE systemname = ?", List.of(
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name)
         ));
+    }
+
+    public static void insertFallbackServers(List<RegisteredServer> servers) {
+        servers.forEach(MySQL::insertFallbackServer);
+    }
+
+    public static void deleteFallbackServers() {
+        update("DELETE FROM servermanager_servers WHERE islobby = 2", null);
     }
 }

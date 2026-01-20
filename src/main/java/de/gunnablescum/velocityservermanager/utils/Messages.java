@@ -24,8 +24,6 @@ public class Messages {
     private static String SERVER_RELOADED_BROADCAST;
     private static String SERVER_ENABLED_BROADCAST;
     private static String SERVER_DISABLED_BROADCAST;
-    private static String SERVER_ALREADY_ENABLED;
-    private static String SERVER_ALREADY_DISABLED;
     private static String SERVER_EMPTIED_BROADCAST;
     private static String SERVER_NOT_ACTIVE;
     private static String PREVIOUS_SERVER_EMPTIED;
@@ -40,6 +38,8 @@ public class Messages {
     private static String INVALID_ARGS;
     private static String SERVER_PROXY_MANAGED;
     private static String SERVER_ADDED_BROADCAST;
+    private static String SERVER_ALREADY_EXISTS;
+    private static String FLAGS_UPDATED; // To be implemented
 
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -61,9 +61,7 @@ public class Messages {
         SERVER_LIST_INFO                = config.getString("Messages.SERVER_LIST_INFO", "");
         SERVER_RELOADED_BROADCAST       = config.getString("Messages.SERVER_RELOADED_BROADCAST", "");
         SERVER_ENABLED_BROADCAST        = config.getString("Messages.SERVER_ENABLED_BROADCAST", "");
-        SERVER_ALREADY_ENABLED          = config.getString("Messages.SERVER_ALREADY_ENABLED", "");
         SERVER_DISABLED_BROADCAST       = config.getString("Messages.SERVER_DISABLED_BROADCAST", "");
-        SERVER_ALREADY_DISABLED         = config.getString("Messages.SERVER_ALREADY_DISABLED", "");
         SERVER_EMPTIED_BROADCAST        = config.getString("Messages.SERVER_EMPTIED_BROADCAST", "");
         SERVER_ADDED_BROADCAST          = config.getString("Messages.SERVER_ADDED_BROADCAST", "");
         SERVER_NOT_ACTIVE               = config.getString("Messages.SERVER_NOT_ACTIVE", "");
@@ -78,6 +76,8 @@ public class Messages {
         NO_ACTION_COMMITED              = config.getString("Messages.NO_ACTION_COMMITED", "");
         INVALID_ARGS                    = config.getString("Messages.INVALID_ARGS", "");
         SERVER_PROXY_MANAGED            = config.getString("Messages.SERVER_PROXY_MANAGED", "");
+        SERVER_ALREADY_EXISTS           = config.getString("Messages.SERVER_ALREADY_EXISTS", "");
+        FLAGS_UPDATED                   = config.getString("Messages.FLAGS_UPDATED", "");
     }
 
     // No Variables
@@ -85,8 +85,6 @@ public class Messages {
     public static Component serversListHeader() { return PREFIX.append(mm.deserialize(SERVERS_LIST_HEADER)); }
     public static Component previousServerDeletedInfo() { return PREFIX.append(mm.deserialize(PREVIOUS_SERVER_DELETED_INFO)); }
     public static Component serverNotFound() { return PREFIX.append(mm.deserialize(SERVER_NOT_FOUND)); }
-    public static Component serverAlreadyEnabled() { return PREFIX.append(mm.deserialize(SERVER_ALREADY_ENABLED)); }
-    public static Component serverAlreadyDisabled() { return PREFIX.append(mm.deserialize(SERVER_ALREADY_DISABLED)); }
     public static Component serverNotActive() { return PREFIX.append(mm.deserialize(SERVER_NOT_ACTIVE)); }
     public static Component previousServerEmptied() { return PREFIX.append(mm.deserialize(PREVIOUS_SERVER_EMPTIED)); }
     public static Component gotoDescription() { return PREFIX.append(mm.deserialize(GOTO_DESCRIPTION)); }
@@ -94,6 +92,7 @@ public class Messages {
     public static Component alreadyOnLobby() { return PREFIX.append(mm.deserialize(LOBBY_ALREADY_ON_LOBBY)); }
     public static Component noActionCommited() { return PREFIX.append(mm.deserialize(NO_ACTION_COMMITED)); }
     public static Component proxyManagedServer() { return PREFIX.append(mm.deserialize(SERVER_PROXY_MANAGED)); }
+    public static Component serverAlreadyExists() { return PREFIX.append(mm.deserialize(SERVER_ALREADY_EXISTS)); }
 
     // One Variable
     public static Component allServerReloadBroadcast(String admin) {

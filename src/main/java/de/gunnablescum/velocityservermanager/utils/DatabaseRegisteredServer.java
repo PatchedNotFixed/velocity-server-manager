@@ -19,11 +19,12 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
     private final static ProxyServer proxyServer = ServerManager.getInstance().getProxyServer();
 
     public boolean hasDedicatedDisplayName() {
-        return !(displayName.isEmpty() || displayName.isBlank());
+        return !(displayName == null || displayName.isEmpty() || displayName.isBlank());
     }
 
     @Override
     public String displayName() {
+        if(displayName == null) return systemName;
         return displayName.isEmpty() ? systemName : displayName;
     }
 
@@ -94,7 +95,7 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
         source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>Info about<dark_gray>: " + displayName())));
         source.sendMessage(mm.deserialize("<gray>Systemname<dark_gray>:<green> " + systemName()));
         source.sendMessage(mm.deserialize("<gray>Status<dark_gray>: " + onlineOfflineString(online())));
-        source.sendMessage(mm.deserialize("<gray>Displayname<dark_gray>: " + (hasDedicatedDisplayName() ? displayName() : "<red>None")));
+        source.sendMessage(mm.deserialize("<gray>Displayname<dark_gray>: <yellow>" + (hasDedicatedDisplayName() ? displayName() : "<red>None")));
         source.sendMessage(mm.deserialize("<gray>Enabled<dark_gray>: " + trueFalseString(active())));
         source.sendMessage(mm.deserialize("<gray>Lobby<dark_gray>: " + trueFalseString(lobby())));
         source.sendMessage(mm.deserialize("<gray>Restricted<dark_gray>: " + trueFalseString(restricted())));
@@ -121,7 +122,7 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
         source.sendMessage(mm.deserialize("<gray>Players<dark_gray>: " + players));
     }
 
-    // Haha, another tri-state boolean
+    // Haha, Tri-state boolean get rekt java
     public boolean isProxyManaged() {
         return lobby == null;
     }
