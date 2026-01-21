@@ -9,7 +9,6 @@
 
 # Gradle
 /.gradle
-/gradle
 /run
 
 # Scratch Files
