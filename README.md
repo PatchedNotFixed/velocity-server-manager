@@ -79,12 +79,12 @@ Have fun configuring to your heart's desire.
 - `[addserver]` - Adds a server to your network
 - `[delserver]` - Deletes a server from your network
 - `[reloadserver]` - Reloads the data of a specific server or all servers in the network
-- `[servers, listservers]` - Lists all servers in your network
+- `[serverlist, sl]` - Lists all servers in your network
 - `[serverinfo, si]` - Shows some information about a specific server
 - `[flagserver]` - Add a flag to a server
 - `[unflagserver]` - Remove a flag from a server
 - `[clearserver, kickserver]` - Kicks all players from the specific server to a random lobby
-- `[servermanager help]` - A unified command for every action
+- `[servermanager]` - A unified command for every action
 
 ## Flags
 Flags are how to plugin identifies servers and their conditions. Some are immutable.
