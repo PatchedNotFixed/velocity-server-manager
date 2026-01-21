@@ -39,7 +39,9 @@ public class Messages {
     private static String SERVER_PROXY_MANAGED;
     private static String SERVER_ADDED_BROADCAST;
     private static String SERVER_ALREADY_EXISTS;
-    private static String FLAGS_UPDATED; // To be implemented
+    private static String FLAGS_UPDATED;
+    private static String SERVER_ONLINE_BROADCAST;
+    private static String SERVER_OFFLINE_BROADCAST;
 
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -78,6 +80,8 @@ public class Messages {
         SERVER_PROXY_MANAGED            = config.getString("Messages.SERVER_PROXY_MANAGED", "");
         SERVER_ALREADY_EXISTS           = config.getString("Messages.SERVER_ALREADY_EXISTS", "");
         FLAGS_UPDATED                   = config.getString("Messages.FLAGS_UPDATED", "");
+        SERVER_ONLINE_BROADCAST         = config.getString("Messages.SERVER_ONLINE_BROADCAST", "");
+        SERVER_OFFLINE_BROADCAST        = config.getString("Messages.SERVER_OFFLINE_BROADCAST", "");
     }
 
     // No Variables
@@ -99,6 +103,20 @@ public class Messages {
         return PREFIX.append(mm.deserialize(
                 ALL_SERVER_RELOAD_BROADCAST,
                 Placeholder.unparsed("admin", admin)
+        ));
+    }
+
+    public static Component serverOnlineBroadcast(String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_ONLINE_BROADCAST,
+                Placeholder.unparsed("server", serverName)
+        ));
+    }
+
+    public static Component serverOfflineBroadcast(String serverName) {
+        return PREFIX.append(mm.deserialize(
+                SERVER_OFFLINE_BROADCAST,
+                Placeholder.unparsed("server", serverName)
         ));
     }
 

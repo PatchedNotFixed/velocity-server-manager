@@ -22,7 +22,7 @@ public class DisableServerCommand extends VSMCommand {
     @Override
     protected BrigadierCommand createBrigadierCommand(ProxyServer proxyServer) {
         LiteralCommandNode<CommandSource> enableServerNode = BrigadierCommand.literalArgumentBuilder("disableserver")
-            .requires(source -> source.hasPermission("servermanager.servers.disable"))
+            .requires(source -> source.hasPermission("servermanager.servers.flags"))
             .then(BrigadierCommand.requiredArgumentBuilder("server", StringArgumentType.word())
                 .suggests((ctx, builder) -> {
                     proxyServer.getAllServers().forEach(server -> builder.suggest(server.getServerInfo().getName()));

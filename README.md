@@ -12,7 +12,7 @@ Check out the original Plugin on SpigotMC here: [BungeeServerManager \[BungeeCor
 - [x] Make every Message be configurable
 - [x] Implement Tab Completion for Commands
 - [x] Rework setlobby and setrestricted to be "flags" (Like, flags, you know what I mean.)
-- [ ] Make a single, unified command for everything
+- [x] Make a single, unified command for everything
 - [ ] Release on Velocity Resource Site and Modrinth
 
 ## Features
@@ -35,7 +35,7 @@ You'll need:
 3. Start your Proxy to generate the default configuration files. It will shutdown automatically due to a missing database connection.
 4. Open the generated `mysql.yml` file in a text editor and fill in the details for a valid database connection.
 5. Start your Proxy again. The plugin should connect to the database and create the necessary tables.
-6. (Optional, but encouraged) Remove all servers that are not fallback servers from your `velocity.toml`. Instead, add them using `/addserver` either ingame or in the console. Refer to [here](#commands).
+6. (Optional, but **_encouraged_**) Remove all servers that are not fallback servers from your `velocity.toml`. Instead, add them using `/addserver` either ingame or in the console. Refer to [here](#commands).
 7. (Optional) Configure the messages in `messages.yml` to your liking.
 
 You are now ready to use Velocity Server Manager! Have fun managing your servers on the fly, dynamically.
@@ -60,7 +60,7 @@ If you read this, you've probably encountered an issue or are interested in some
 ## Permissions
 Have fun configuring to your heart's desire.
  * `servermanager.goto` - Be able to use /goto and /jumpto.
- * `servermanager.help` // TODO
+ * `servermanager.help` - See the help list.
  * `servermanager.notify` - Receive notifications when somebody manages servers.
  * `servermanager.servers.add` - Add servers to your network.
  * `servermanager.servers.delete` - Delete servers from your network.
@@ -78,7 +78,6 @@ Have fun configuring to your heart's desire.
 - `[hub, lobby]` - Go to a Lobby Server ("lobby" in velocity.toml is counted)
 - `[goto, jumpto]` - Go to a player's current server
 - `[whereami, wai]` - Find which server you are currently on
-- `[servermanager help]` - Shows help for ServerManager commands // TO BE DELETED
 - `[addserver]` - Adds a server to your network
 - `[delserver]` - Deletes a server from your network
 - `[reloadserver]` - Reloads the data of a specific server or all servers in the network
@@ -87,10 +86,9 @@ Have fun configuring to your heart's desire.
 - `[flagserver]` - Add a flag to a server
 - `[unflagserver]` - Remove a flag from a server
 - `[clearserver, kickserver]` - Kicks all players from the specific server to a random lobby
+- `[servermanager help]` - A unified command for every action
 
 ## Flags
-// TODO: Add flags to show up in /serverinfo
-
 Flags are how to plugin identifies servers and their conditions. Some are immutable.
  * `EMPTY (Bitvalue: 0)` - No flags set
  * `LOBBY (Bitvalue: 1)` - This server is a lobby server. Players will be sent here when they join the proxy or are kicked from another server.

@@ -26,21 +26,25 @@ public class VSMCommand {
         return null;
     }
 
-    protected static void sendPermittedBroadcast(Component component){
+    public static void sendPermittedBroadcast(Component component){
         ProxyServer proxyServer = ServerManager.getInstance().getProxyServer();
         proxyServer.getConsoleCommandSource().sendMessage(component);
         proxyServer.getAllPlayers().stream().filter(all -> all.hasPermission("servermanager.notify")).forEach(all -> all.sendMessage(component));
     }
 
     protected static String getResponsible(CommandContext<CommandSource> context) {
+        return getResponsible(context.getSource());
+    }
+
+    public static String getResponsible(CommandSource source) {
         String name = "the network Administrator";
-        if(context.getSource() instanceof Player p) {
+        if(source instanceof Player p) {
             name = p.getUsername();
         }
         return name;
     }
 
-    protected boolean checkIfServerProxyManagedOrNull(CommandSource source, DatabaseRegisteredServer server) {
+    public static boolean checkIfServerProxyManagedOrNull(CommandSource source, DatabaseRegisteredServer server) {
         if(server == null) {
             source.sendMessage(Messages.serverNotFound());
             return true;

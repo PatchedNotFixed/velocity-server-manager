@@ -22,6 +22,9 @@ public class ServerPinger {
     }
 
     private static void update(String name, boolean online) {
+        if(ServerManager.serverStatusCache.getOrDefault(name, false) != online) {
+            VSMCommand.sendPermittedBroadcast(online ? Messages.serverOnlineBroadcast(name) : Messages.serverOfflineBroadcast(name));
+        }
         ServerManager.serverStatusCache.put(name, online);
     }
 }

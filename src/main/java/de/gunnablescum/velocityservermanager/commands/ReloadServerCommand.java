@@ -24,6 +24,9 @@ public class ReloadServerCommand extends VSMCommand {
         LiteralCommandNode<CommandSource> enableServerNode = BrigadierCommand.literalArgumentBuilder("reloadserver")
             .requires(source -> source.hasPermission("servermanager.servers.reload"))
                 .executes(context -> {
+                    for(DatabaseRegisteredServer server : MySQL.getAllServers()) {
+                        server.reloadInProxy();
+                    }
                     sendPermittedBroadcast(Messages.allServerReloadBroadcast(getResponsible(context)));
                     return Command.SINGLE_SUCCESS;
                 })

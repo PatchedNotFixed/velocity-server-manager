@@ -106,7 +106,8 @@ public class ServerManager {
         new HubCommand(this, manager);
         new ReloadServerCommand(this, manager);
         new ServerInfoCommand(this, manager);
-        new ServersCommand(this, manager);
+        new ServersCommand(manager);
+        new ServerListCommand(this, manager);
         new FlagServerCommand(this, manager);
         new UnflagServerCommand(this, manager);
         new WhereAmICommand(this, manager);

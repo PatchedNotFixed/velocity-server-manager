@@ -1,8 +1,10 @@
 package de.gunnablescum.velocityservermanager.listener;
 
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.PostLoginEvent;
+import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import de.gunnablescum.velocityservermanager.ServerManager;
+
+import java.security.SecureRandom;
 
 /**
  * Created by Noah Fetz on 21.05.2016.
@@ -15,7 +17,9 @@ public class ConnectionListener {
     }
 
     @Subscribe
-    public void onJoin(PostLoginEvent e) {
-        // TODO: Implement connecting players to a lobby server on join
+    public void onJoin(ServerPreConnectEvent e) {
+        if(e.getPreviousServer() == null) {
+            e.setResult(ServerPreConnectEvent.ServerResult.allowed(ServerManager.lobbies.get(new SecureRandom().nextInt(ServerManager.lobbies.size()))));
+        }
     }
 }

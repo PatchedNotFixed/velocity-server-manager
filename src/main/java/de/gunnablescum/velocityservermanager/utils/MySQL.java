@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Noah Fetz on 20.05.2016.
@@ -178,6 +179,7 @@ public class MySQL {
                 new SQLStatementParameter(SQLStatementParameterType.INT, 3, port),
                 new SQLStatementParameter(SQLStatementParameterType.BYTE, 4, ServerFlag.EMPTY.bit)
         ));
+        Objects.requireNonNull(getServer(name)).addToProxy();
     }
 
     public static void insertFallbackServer(RegisteredServer server) {

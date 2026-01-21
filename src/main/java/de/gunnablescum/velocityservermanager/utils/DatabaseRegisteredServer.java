@@ -102,11 +102,8 @@ public record DatabaseRegisteredServer(String name, String address, int port, by
         source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>Info about<dark_gray>: " + name())));
         source.sendMessage(mm.deserialize("<gray>Systemname<dark_gray>:<green> " + name()));
         source.sendMessage(mm.deserialize("<gray>Status<dark_gray>: " + onlineOfflineString(ServerManager.serverStatusCache.getOrDefault(name(), false))));
-        source.sendMessage(mm.deserialize("<gray>Enabled<dark_gray>: " + trueFalseString(active())));
-        source.sendMessage(mm.deserialize("<gray>Lobby<dark_gray>: " + trueFalseString(hasFlag(LOBBY))));
-        source.sendMessage(mm.deserialize("<gray>Restricted<dark_gray>: " + trueFalseString(hasFlag(RESTRICTED))));
-        source.sendMessage(mm.deserialize("<gray>IP<dark_gray>:<green> " + address()));
-        source.sendMessage(mm.deserialize("<gray>Port<dark_gray>:<green> " + port()));
+        source.sendMessage(mm.deserialize("<gray>IP<dark_gray>:<green> " + address() + ":" + port()));
+        source.sendMessage(mm.deserialize("<gray>Flags<dark_gray>: " + ServerFlag.miniMessageFormatted(flags)));
         if(!active()) return;
 
         StringBuilder players = null;
@@ -136,9 +133,6 @@ public record DatabaseRegisteredServer(String name, String address, int port, by
         return (flags & flag.bit) == flag.bit;
     }
 
-    private String trueFalseString(Boolean bool){
-        return bool ? "<green>True</green>" : "<red>False</red>";
-    }
     private String onlineOfflineString(Boolean bool){
         return bool ? "<green>Online</green>" : "<red>Offline</red>";
     }
