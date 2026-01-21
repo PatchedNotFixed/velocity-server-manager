@@ -38,7 +38,7 @@ public class EnableServerCommand extends VSMCommand {
                         return Command.SINGLE_SUCCESS;
                     }
                     target.setActive(true);
-                    sendPermittedBroadcast(Messages.serverEnabledBroadcast(getResponsible(context), target.displayName()));
+                    sendPermittedBroadcast(Messages.serverEnabledBroadcast(getResponsible(context), server));
                     return Command.SINGLE_SUCCESS;
                 }))
             .build();

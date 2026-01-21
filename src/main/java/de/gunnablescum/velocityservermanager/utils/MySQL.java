@@ -77,7 +77,7 @@ public class MySQL {
 
     public static void createTable(){
         try {
-            update("CREATE TABLE IF NOT EXISTS servermanager_servers(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, systemname TEXT, ip TEXT, port INT, displayname TEXT, islobby BOOLEAN, isactive BOOLEAN, isrestricted BOOLEAN, isonline BOOLEAN)", new ArrayList<>());
+            update("CREATE TABLE IF NOT EXISTS servermanager_servers(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name TEXT, ip TEXT, port INT, flags INT)", new ArrayList<>());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -95,9 +95,9 @@ public class MySQL {
                     switch (parameter.type()) {
                         case STRING -> ps.setString(parameter.index(), (String) parameter.value());
                         case INT -> ps.setInt(parameter.index(), (int) parameter.value());
-                        case DOUBLE -> ps.setDouble(parameter.index(), (double) parameter.value());
                         case BOOL -> ps.setBoolean(parameter.index(), (boolean) parameter.value());
                         case LONG -> ps.setLong(parameter.index(), (long) parameter.value());
+                        case BYTE -> ps.setByte(parameter.index(), (byte) parameter.value());
                     }
                 }
             }
@@ -120,19 +120,15 @@ public class MySQL {
     public static DatabaseRegisteredServer getServer(String name) {
         try {
             Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE systemname = ?");
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE name = ?");
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) return null;
             DatabaseRegisteredServer server = new DatabaseRegisteredServer(
-                    rs.getString("systemname"),
-                    rs.getString("displayname"),
+                    rs.getString("name"),
                     rs.getString("ip"),
                     rs.getInt("port"),
-                    rs.getInt("islobby") == 2 ? null : rs.getBoolean("islobby"),
-                    rs.getBoolean("isrestricted"),
-                    rs.getBoolean("isactive"),
-                    rs.getBoolean("isonline")
+                    rs.getByte("flags")
             );
             rs.close();
             ps.close();
@@ -145,7 +141,7 @@ public class MySQL {
         return null;
     }
 
-    public static boolean isInDatabase(String name) {
+    public static boolean doesServerExist(String name) {
         return getServer(name) != null;
     }
 
@@ -158,14 +154,10 @@ public class MySQL {
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 DatabaseRegisteredServer server = new DatabaseRegisteredServer(
-                        rs.getString("systemname"),
-                        rs.getString("displayname"),
+                        rs.getString("name"),
                         rs.getString("ip"),
                         rs.getInt("port"),
-                        rs.getInt("islobby") == 2 ? null : rs.getBoolean("islobby"),
-                        rs.getBoolean("isrestricted"),
-                        rs.getBoolean("isactive"),
-                        rs.getBoolean("isonline")
+                        rs.getByte("flags")
                 );
                 servers.add(server);
             }
@@ -179,21 +171,26 @@ public class MySQL {
         return List.of();
     }
 
+    public static void createServer(String name, String ip, int port) {
+        update("INSERT INTO servermanager_servers(name, ip, port, flags) VALUES(?, ?, ?, ?)", List.of(
+                new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name),
+                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, ip),
+                new SQLStatementParameter(SQLStatementParameterType.INT, 3, port),
+                new SQLStatementParameter(SQLStatementParameterType.BYTE, 4, ServerFlag.EMPTY.bit)
+        ));
+    }
+
     public static void insertFallbackServer(RegisteredServer server) {
-        update("INSERT INTO servermanager_servers(systemname, ip, port, displayname, islobby, isactive, isrestricted, isonline) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", List.of(
+        update("INSERT INTO servermanager_servers(name, ip, port, flags) VALUES(?, ?, ?, ?)", List.of(
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 1, server.getServerInfo().getName()),
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 2, server.getServerInfo().getAddress().getHostString()),
                 new SQLStatementParameter(SQLStatementParameterType.INT, 3, server.getServerInfo().getAddress().getPort()),
-                new SQLStatementParameter(SQLStatementParameterType.STRING, 4, server.getServerInfo().getName()),
-                new SQLStatementParameter(SQLStatementParameterType.INT, 5, 2), // 2 = Forced by Proxy, don't manage with VSM (Yes this is basically a very fucked up tri-state boolean)
-                new SQLStatementParameter(SQLStatementParameterType.BOOL, 6, true),
-                new SQLStatementParameter(SQLStatementParameterType.BOOL, 7, false),
-                new SQLStatementParameter(SQLStatementParameterType.BOOL, 8, false)
+                new SQLStatementParameter(SQLStatementParameterType.BYTE, 4, ServerFlag.PROXY_MANAGED.bit) // 2 = Don't manage with VSM
         ));
     }
 
     public static void deleteServer(String name) {
-        update("DELETE FROM servermanager_servers WHERE systemname = ?", List.of(
+        update("DELETE FROM servermanager_servers WHERE name = ?", List.of(
                 new SQLStatementParameter(SQLStatementParameterType.STRING, 1, name)
         ));
     }
@@ -203,6 +200,6 @@ public class MySQL {
     }
 
     public static void deleteFallbackServers() {
-        update("DELETE FROM servermanager_servers WHERE islobby = 2", null);
+        update("DELETE FROM servermanager_servers WHERE flags = 9", null);
     }
 }

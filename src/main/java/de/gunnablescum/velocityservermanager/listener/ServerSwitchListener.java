@@ -6,6 +6,7 @@ import de.gunnablescum.velocityservermanager.ServerManager;
 import de.gunnablescum.velocityservermanager.utils.DatabaseRegisteredServer;
 import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
+import de.gunnablescum.velocityservermanager.utils.ServerFlag;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 /**
@@ -25,7 +26,7 @@ public class ServerSwitchListener {
         DatabaseRegisteredServer server = MySQL.getServer(serverTarget);
         if(server == null) return; // Shouldn't happen but IntelliJ pisses me off about this
 
-        if(server.restricted()) {
+        if(server.hasFlag(ServerFlag.RESTRICTED)) {
             if(!e.getPlayer().hasPermission("servermanager.server." + serverTarget) && !e.getPlayer().hasPermission("servermanager.ignorerestricion")) {
                 MiniMessage mm = MiniMessage.miniMessage();
                 e.getPlayer().sendMessage(Messages.PREFIX.append(mm.deserialize("<red>You're not allowed to join this server.")));

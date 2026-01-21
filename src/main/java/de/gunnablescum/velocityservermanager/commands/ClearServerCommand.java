@@ -40,7 +40,7 @@ public class ClearServerCommand extends VSMCommand {
                         return Command.SINGLE_SUCCESS;
                     }
                     target.empty(false);
-                    sendPermittedBroadcast(Messages.serverEmptiedBroadcast(server, target.displayName()));
+                    sendPermittedBroadcast(Messages.serverEmptiedBroadcast(getResponsible(context), server));
                     return Command.SINGLE_SUCCESS;
                 })).build();
 

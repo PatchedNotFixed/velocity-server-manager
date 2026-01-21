@@ -186,19 +186,22 @@ public class Messages {
         ));
     }
 
-    // Multiple Variables
-    public static Component serverListInfo(String id, String server, String status, String enabled, String lobby, String restricted, String displayname, String ip, String port) {
+    // Three Variables
+    public static Component serverListInfo(String id, String server, String flags) {
         return mm.deserialize(
                 SERVER_LIST_INFO,
                 Placeholder.parsed("id", id),
                 Placeholder.parsed("server", server),
-                Placeholder.parsed("status", status),
-                Placeholder.parsed("enabled", enabled),
-                Placeholder.parsed("lobby", lobby),
-                Placeholder.parsed("restricted", restricted),
-                Placeholder.parsed("displayname", displayname),
-                Placeholder.parsed("ip", ip),
-                Placeholder.parsed("port", port)
+                Placeholder.parsed("flags", flags)
         );
+    }
+
+    public static Component flagsUpdated(String admin, String server, String flags) {
+        return PREFIX.append(mm.deserialize(
+                FLAGS_UPDATED,
+                Placeholder.unparsed("admin", admin),
+                Placeholder.unparsed("server", server),
+                Placeholder.parsed("flags", flags)
+        ));
     }
 }

@@ -40,7 +40,7 @@ public class ReloadServerCommand extends VSMCommand {
                         return Command.SINGLE_SUCCESS;
                     }
                     target.reloadInProxy();
-                    sendPermittedBroadcast(Messages.serverReloadedBroadcast(getResponsible(context), target.displayName()));
+                    sendPermittedBroadcast(Messages.serverReloadedBroadcast(getResponsible(context), server));
                     return Command.SINGLE_SUCCESS;
                 }))
             .build();

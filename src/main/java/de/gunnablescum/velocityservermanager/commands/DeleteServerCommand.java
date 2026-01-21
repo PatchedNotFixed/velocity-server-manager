@@ -37,7 +37,7 @@ public class DeleteServerCommand extends VSMCommand {
                     target.deleteFromDatabase();
                     target.removeFromProxy();
 
-                    sendPermittedBroadcast(Messages.serverDeletedBroadcast(getResponsible(context), target.displayName()));
+                    sendPermittedBroadcast(Messages.serverDeletedBroadcast(getResponsible(context), server));
                     return Command.SINGLE_SUCCESS;
                 })).build();
 

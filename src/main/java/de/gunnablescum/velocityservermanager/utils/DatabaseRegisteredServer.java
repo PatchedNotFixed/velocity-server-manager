@@ -14,38 +14,41 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 
-public record DatabaseRegisteredServer(String systemName, String displayName, String address, int port, Boolean lobby, boolean restricted, boolean active, boolean online) {
+import static de.gunnablescum.velocityservermanager.utils.ServerFlag.*;
+
+public record DatabaseRegisteredServer(String name, String address, int port, byte flags) {
 
     private final static ProxyServer proxyServer = ServerManager.getInstance().getProxyServer();
 
-    public boolean hasDedicatedDisplayName() {
-        return !(displayName == null || displayName.isEmpty() || displayName.isBlank());
+    public static void addAllServers() {
+        for(DatabaseRegisteredServer server : MySQL.getAllServers()){
+            if (!server.active()) continue;
+            server.addToProxy();
+        }
     }
 
-    @Override
-    public String displayName() {
-        if(displayName == null) return systemName;
-        return displayName.isEmpty() ? systemName : displayName;
+    public boolean active() {
+        return !hasFlag(DISABLED);
     }
 
     public void empty(boolean force) {
-        if(!active) return;
-        Optional<RegisteredServer> server = ServerManager.getInstance().getProxyServer().getServer(systemName);
+        if(!active()) return;
+        Optional<RegisteredServer> server = ServerManager.getInstance().getProxyServer().getServer(name);
         if(server.isEmpty()) return;
         for(Player all : server.get().getPlayersConnected()) {
-            if(force || !all.hasPermission("servermanager.ignorekick"))
-                all.createConnectionRequest(ServerManager.lobbies.get(new SecureRandom().nextInt(ServerManager.lobbies.size()))).connect();
+            if (!force && all.hasPermission("servermanager.ignorekick")) continue;
+            all.createConnectionRequest(ServerManager.lobbies.get(new SecureRandom().nextInt(ServerManager.lobbies.size()))).connect();
             all.sendMessage(force ? Messages.previousServerDeletedInfo() : Messages.previousServerEmptied());
         }
     }
 
     public void removeFromProxy() {
-        Optional<RegisteredServer> server = ServerManager.getInstance().getProxyServer().getServer(systemName);
+        Optional<RegisteredServer> server = ServerManager.getInstance().getProxyServer().getServer(name);
         server.ifPresent(registeredServer -> ServerManager.getInstance().getProxyServer().unregisterServer(registeredServer.getServerInfo()));
     }
 
     public void addToProxy() {
-        ServerManager.getInstance().getProxyServer().registerServer(new ServerInfo(systemName, new InetSocketAddress(address, port)));
+        ServerManager.getInstance().getProxyServer().registerServer(new ServerInfo(name, new InetSocketAddress(address, port)));
     }
 
     public void reloadInProxy() {
@@ -55,35 +58,39 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
 
     @Nullable
     public RegisteredServer getFromProxy() {
-        return proxyServer.getServer(systemName).orElse(null);
+        return proxyServer.getServer(name).orElse(null);
     }
 
     public void deleteFromDatabase() {
-        MySQL.deleteServer(systemName);
+        MySQL.deleteServer(name);
+    }
+
+    public boolean setFlag(ServerFlag flag) {
+        int newFlags = flags | flag.bit;
+        if (flags == newFlags) return false;
+        MySQL.update("UPDATE servermanager_servers SET flags = ? WHERE name = ?", List.of(
+                new SQLStatementParameter(SQLStatementParameterType.INT, 1, newFlags),
+                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, name)
+        ));
+        return true;
+    }
+
+    public boolean unsetFlag(ServerFlag flag) {
+        int newFlags = flags & ~flag.bit;
+        if (flags == newFlags) return false;
+        MySQL.update("UPDATE servermanager_servers SET flags = ? WHERE name = ?", List.of(
+                new SQLStatementParameter(SQLStatementParameterType.INT, 1, newFlags),
+                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, name)
+        ));
+        return true;
     }
 
     public void setActive(boolean isActive) {
-        if(isActive) addToProxy();
-        else removeFromProxy();
-
-        MySQL.update("UPDATE servermanager_servers SET isactive = ? WHERE systemname = ?", List.of(
-                new SQLStatementParameter(SQLStatementParameterType.INT, 1, isActive ? 1 : 0),
-                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, systemName)
-        ));
-    }
-
-    public void setLobby(boolean isLobby) {
-        MySQL.update("UPDATE servermanager_servers SET islobby = ? WHERE systemname = ?", List.of(
-                new SQLStatementParameter(SQLStatementParameterType.INT, 1, isLobby ? 1 : 0),
-                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, systemName)
-        ));
-    }
-
-    public void setRestricted(boolean isRestricted) {
-        MySQL.update("UPDATE servermanager_servers SET isrestricted = ? WHERE systemname = ?", List.of(
-                new SQLStatementParameter(SQLStatementParameterType.INT, 1, isRestricted ? 1 : 0),
-                new SQLStatementParameter(SQLStatementParameterType.STRING, 2, systemName)
-        ));
+        if(isActive) {
+            unsetFlag(DISABLED);
+        } else {
+            setFlag(DISABLED);
+        }
     }
 
     public void sendInfo(CommandSource source) {
@@ -92,13 +99,12 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
             return;
         }
         MiniMessage mm = MiniMessage.miniMessage();
-        source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>Info about<dark_gray>: " + displayName())));
-        source.sendMessage(mm.deserialize("<gray>Systemname<dark_gray>:<green> " + systemName()));
-        source.sendMessage(mm.deserialize("<gray>Status<dark_gray>: " + onlineOfflineString(online())));
-        source.sendMessage(mm.deserialize("<gray>Displayname<dark_gray>: <yellow>" + (hasDedicatedDisplayName() ? displayName() : "<red>None")));
+        source.sendMessage(Messages.PREFIX.append(mm.deserialize("<gray>Info about<dark_gray>: " + name())));
+        source.sendMessage(mm.deserialize("<gray>Systemname<dark_gray>:<green> " + name()));
+        source.sendMessage(mm.deserialize("<gray>Status<dark_gray>: " + onlineOfflineString(ServerManager.serverStatusCache.getOrDefault(name(), false))));
         source.sendMessage(mm.deserialize("<gray>Enabled<dark_gray>: " + trueFalseString(active())));
-        source.sendMessage(mm.deserialize("<gray>Lobby<dark_gray>: " + trueFalseString(lobby())));
-        source.sendMessage(mm.deserialize("<gray>Restricted<dark_gray>: " + trueFalseString(restricted())));
+        source.sendMessage(mm.deserialize("<gray>Lobby<dark_gray>: " + trueFalseString(hasFlag(LOBBY))));
+        source.sendMessage(mm.deserialize("<gray>Restricted<dark_gray>: " + trueFalseString(hasFlag(RESTRICTED))));
         source.sendMessage(mm.deserialize("<gray>IP<dark_gray>:<green> " + address()));
         source.sendMessage(mm.deserialize("<gray>Port<dark_gray>:<green> " + port()));
         if(!active()) return;
@@ -122,9 +128,12 @@ public record DatabaseRegisteredServer(String systemName, String displayName, St
         source.sendMessage(mm.deserialize("<gray>Players<dark_gray>: " + players));
     }
 
-    // Haha, Tri-state boolean get rekt java
     public boolean isProxyManaged() {
-        return lobby == null;
+        return hasFlag(PROXY_MANAGED);
+    }
+
+    public boolean hasFlag(ServerFlag flag) {
+        return (flags & flag.bit) == flag.bit;
     }
 
     private String trueFalseString(Boolean bool){

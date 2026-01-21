@@ -39,7 +39,7 @@ public class DisableServerCommand extends VSMCommand {
                     }
                     target.empty(true);
                     target.setActive(false);
-                    sendPermittedBroadcast(Messages.serverDisabledBroadcast(getResponsible(context), target.displayName()));
+                    sendPermittedBroadcast(Messages.serverDisabledBroadcast(getResponsible(context), server));
                     return Command.SINGLE_SUCCESS;
                 })).build();
 

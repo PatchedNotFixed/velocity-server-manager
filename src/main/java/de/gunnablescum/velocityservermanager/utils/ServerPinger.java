@@ -12,11 +12,16 @@ public class ServerPinger {
     public static void checkAllServers(){
         for (RegisteredServer server : ServerManager.getInstance().getProxyServer().getAllServers().stream().toList()) {
             server.ping().thenAccept(serverPing ->
-                    BackendServerManager.setIsOnline(server.getServerInfo().getName(), true))
+                    update(server.getServerInfo().getName(), true)
+                )
                 .exceptionally(throwable -> {
-                    BackendServerManager.setIsOnline(server.getServerInfo().getName(), false);
+                    update(server.getServerInfo().getName(), false);
                     return null;
                 });
         }
+    }
+
+    private static void update(String name, boolean online) {
+        ServerManager.serverStatusCache.put(name, online);
     }
 }

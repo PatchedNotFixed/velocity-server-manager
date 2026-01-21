@@ -14,7 +14,7 @@ import de.gunnablescum.velocityservermanager.commands.*;
 import de.gunnablescum.velocityservermanager.listener.ConnectionListener;
 import de.gunnablescum.velocityservermanager.listener.ServerKickListener;
 import de.gunnablescum.velocityservermanager.listener.ServerSwitchListener;
-import de.gunnablescum.velocityservermanager.utils.BackendServerManager;
+import de.gunnablescum.velocityservermanager.utils.DatabaseRegisteredServer;
 import de.gunnablescum.velocityservermanager.utils.Messages;
 import de.gunnablescum.velocityservermanager.utils.MySQL;
 import de.gunnablescum.velocityservermanager.utils.ServerPinger;
@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,6 +52,7 @@ public class ServerManager {
     private Path dataDirectory;
 
     public static final List<RegisteredServer> lobbies = new ArrayList<>();
+    public static final Map<String, Boolean> serverStatusCache = new HashMap<>();
 
     private static ServerManager instance;
 
@@ -72,7 +75,7 @@ public class ServerManager {
         addFallbackServersToLobbies();
         MySQL.insertFallbackServers(lobbies);
 
-        BackendServerManager.addAllServers();
+        DatabaseRegisteredServer.addAllServers();
         logger.info("VelocityServerManager has been successfully initialized!");
     }
 
@@ -104,7 +107,8 @@ public class ServerManager {
         new ReloadServerCommand(this, manager);
         new ServerInfoCommand(this, manager);
         new ServersCommand(this, manager);
-        new SetFlagCommand(this, manager);
+        new FlagServerCommand(this, manager);
+        new UnflagServerCommand(this, manager);
         new WhereAmICommand(this, manager);
     }
 

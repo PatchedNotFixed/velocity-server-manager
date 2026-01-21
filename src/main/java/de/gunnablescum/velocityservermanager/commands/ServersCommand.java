@@ -37,23 +37,22 @@ public class ServersCommand extends VSMCommand {
         for (DatabaseRegisteredServer server : MySQL.getAllServers()) {
             source.sendMessage(Messages.serverListInfo(
                     String.valueOf(i),
-                    server.systemName(),
-                    onlineOfflineString(server.online()),
-                    server.isProxyManaged() ? "<yellow>Proxy-Managed</yellow>" : trueFalseString(server.active()),
-                    trueFalseString(server.lobby()),
-                    trueFalseString(server.restricted()),
-                    server.displayName(),
-                    server.address(),
-                    String.valueOf(server.port())
+                    onlineOfflineString(server),
+                    flagString(server)
             ));
             i++;
         }
     }
 
-    private static String trueFalseString(Boolean bool) {
-        return bool == null || bool ? "<green>True</green>" : "<red>False</red>";
+    // If there's more than one flag, just return "<yellow>Multiple Flags</yellow>"
+    private static String flagString(DatabaseRegisteredServer server) {
+        try {
+            return ServerFlag.valueOf(server.flags()).toString();
+        } catch (IllegalArgumentException e) {
+            return "<yellow>Multiple Flags</yellow>";
+        }
     }
-    private static String onlineOfflineString(Boolean bool) {
-        return bool ? "<green>Online</green>" : "<red>Offline</red>";
+    private static String onlineOfflineString(DatabaseRegisteredServer server) {
+        return (ServerManager.serverStatusCache.getOrDefault(server.name(), false) ? "<green>✔" : "<red>❌") + server.name() + "<reset>";
     }
 }
