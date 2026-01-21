@@ -73,7 +73,7 @@ Have fun configuring to your heart's desire.
  * `servermanager.ignorerestriction` - Ditto of the above, if your Permission system does not support wildcards.
 
 ## Commands
-- `[hub, lobby]` - Go to a Lobby Server ("lobby" in velocity.toml is counted)
+- `[hub, lobby]` - Go to a Lobby Server
 - `[goto, jumpto]` - Go to a player's current server
 - `[whereami, wai]` - Find which server you are currently on
 - `[addserver]` - Adds a server to your network
