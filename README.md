@@ -5,21 +5,19 @@ This project follows the MIT License as per upstream, it has not been edited.
 
 Check out the original Plugin on SpigotMC here: [BungeeServerManager \[BungeeCord\] \[MySQL\]](https://www.spigotmc.org/resources/bungeeservermanager-bungeecord-mysql.24837/)
 
-## TODO (Will remove on release)
-- [x] Migrate to Gradle
-- [x] Initial port to Velocity
-- [x] Change Messages to Support Minimessage Format
-- [x] Make every Message be configurable
-- [x] Implement Tab Completion for Commands
-- [x] Rework setlobby and setrestricted to be "flags" (Like, flags, you know what I mean.)
-- [x] Make a single, unified command for everything
-- [ ] Release on Velocity Resource Site and Modrinth
-
 ## Features
  * Add or Remove Servers from your Velocity Proxy without restarting
  * Restriction who can join specific servers with permissions
  * Jump to any player's server you want
  * Servers are saved in a MySQL Database
+ * Receive notifications when servers go online or offline
+ * Kick all players from a specific server to a random lobby
+ * Manage Server Flags to customize server behavior
+ * /hub or /lobby command to go to a lobby server
+ * Configurable messages
+
+## Known Issues.
+- No known issues at this time.
 
 ## Installation
 
