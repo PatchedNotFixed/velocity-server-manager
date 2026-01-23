@@ -85,8 +85,8 @@ public class MySQL {
     }
 
     public static void update(String qry, @Nullable List<SQLStatementParameter> parameters){
-        try(Connection connection = dataSource.getConnection();) {
-            try(PreparedStatement ps = connection.prepareStatement(qry);) {
+        try(Connection connection = dataSource.getConnection()) {
+            try(PreparedStatement ps = connection.prepareStatement(qry)) {
                 if (parameters != null) {
                     for(SQLStatementParameter parameter : parameters) {
                         switch (parameter.type()) {
@@ -118,7 +118,7 @@ public class MySQL {
     @Nullable
     public static DatabaseRegisteredServer getServer(String name) {
         try(Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE name = ?");) {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE name = ?")) {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) return null;
@@ -146,7 +146,7 @@ public class MySQL {
         try(
                 Connection connection= dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers");
-                ResultSet rs = ps.executeQuery();
+                ResultSet rs = ps.executeQuery()
         ) {
             while(rs.next()){
                 DatabaseRegisteredServer server = new DatabaseRegisteredServer(
@@ -157,8 +157,6 @@ public class MySQL {
                 );
                 servers.add(server);
             }
-            rs.close();
-            connection.close();
             return servers;
         } catch (SQLException e) {
             ServerManager.getInstance().getLogger().error("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
