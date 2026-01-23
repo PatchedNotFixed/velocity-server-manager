@@ -85,43 +85,36 @@ public class MySQL {
     }
 
     public static void update(String qry, @Nullable List<SQLStatementParameter> parameters){
-        Connection connection = null;
-
-        try {
-            connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement(qry);
-
-            if (parameters != null) {
-                for(SQLStatementParameter parameter : parameters) {
-                    switch (parameter.type()) {
-                        case STRING -> ps.setString(parameter.index(), (String) parameter.value());
-                        case INT -> ps.setInt(parameter.index(), (int) parameter.value());
-                        case BOOL -> ps.setBoolean(parameter.index(), (boolean) parameter.value());
-                        case LONG -> ps.setLong(parameter.index(), (long) parameter.value());
-                        case BYTE -> ps.setByte(parameter.index(), (byte) parameter.value());
+        try(Connection connection = dataSource.getConnection();) {
+            try(PreparedStatement ps = connection.prepareStatement(qry);) {
+                if (parameters != null) {
+                    for(SQLStatementParameter parameter : parameters) {
+                        switch (parameter.type()) {
+                            case STRING -> ps.setString(parameter.index(), (String) parameter.value());
+                            case INT -> ps.setInt(parameter.index(), (int) parameter.value());
+                            case BOOL -> ps.setBoolean(parameter.index(), (boolean) parameter.value());
+                            case LONG -> ps.setLong(parameter.index(), (long) parameter.value());
+                            case BYTE -> ps.setByte(parameter.index(), (byte) parameter.value());
+                        }
                     }
                 }
-            }
 
-            ps.executeUpdate();
-            connection.commit();
-            ps.close();
-            connection.close();
-        } catch (SQLException e) {
-            try {
+                ps.executeUpdate();
+                connection.commit();
+            } catch (SQLException e) {
                 connection.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
+                throw e; // Rethrow the exception after rollback to trigger console logging
             }
+        } catch (SQLException e) {
+            ServerManager.getInstance().getLogger().error("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
             e.printStackTrace();
         }
     }
 
     @Nullable
     public static DatabaseRegisteredServer getServer(String name) {
-        try {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE name = ?");
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers WHERE name = ?");) {
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) return null;
@@ -132,8 +125,6 @@ public class MySQL {
                     rs.getByte("flags")
             );
             rs.close();
-            ps.close();
-            connection.close();
             return server;
         } catch(SQLException e) {
             ServerManager.getInstance().getLogger().error("VelocityServerManager: Something went wrong while connecting to the database, error details are below.");
@@ -148,11 +139,11 @@ public class MySQL {
 
     public static List<DatabaseRegisteredServer> getAllServers() {
         List<DatabaseRegisteredServer> servers = new ArrayList<>();
-        try {
-            Connection connection= dataSource.getConnection();
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers");
-
-            ResultSet rs = ps.executeQuery();
+        try(
+                Connection connection= dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement("SELECT * FROM servermanager_servers");
+                ResultSet rs = ps.executeQuery();
+        ) {
             while(rs.next()){
                 DatabaseRegisteredServer server = new DatabaseRegisteredServer(
                         rs.getString("name"),
