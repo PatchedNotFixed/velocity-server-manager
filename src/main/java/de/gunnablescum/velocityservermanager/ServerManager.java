@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @Plugin(
         id = "velocityservermanager",
         name = "VelocityServerManager",
-        version = "1.0-SNAPSHOT",
+        version = "1.0",
         description = "Plugin for Dynamic Server Management for the Velocity Proxy.",
         authors = {"Noah Fetz", "GunnableScum"}
 )

@@ -28,7 +28,7 @@ You'll need:
  * About 5-10 minutes of your time to set everything up
 
 ### Setup
-1. Download the latest release of Velocity Server Manager. (Not available yet)
+1. Download the latest release of Velocity Server Manager.
 2. Place the downloaded `.jar` file into your `plugins` folder of your Velocity Proxy.
 3. Start your Proxy to generate the default configuration files. It will shutdown automatically due to a missing database connection.
 4. Open the generated `mysql.yml` file in a text editor and fill in the details for a valid database connection.
