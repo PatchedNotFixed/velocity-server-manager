@@ -102,7 +102,11 @@ public class MySQL {
                 ps.executeUpdate();
                 connection.commit();
             } catch (SQLException e) {
-                connection.rollback();
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackEx) {
+                    e.addSuppressed(rollbackEx);
+                }
                 throw e; // Rethrow the exception after rollback to trigger console logging
             }
         } catch (SQLException e) {
