@@ -19,7 +19,7 @@ import static de.gunnablescum.velocityservermanager.utils.VSMCommand.*;
 public class ServersCommand implements RawCommand {
 
     public ServersCommand(CommandManager manager) {
-        manager.register(manager.metaBuilder("servers").aliases("sm", "servermanager").build(), this);
+        manager.register(manager.metaBuilder("servermanager").aliases("sm").build(), this);
     }
 
     private static void printServerList(CommandSource source) {
